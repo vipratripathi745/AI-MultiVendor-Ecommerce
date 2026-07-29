@@ -1,3 +1,5 @@
+import uploadToCloudinary from "../utils/uploadToCloudinary.js";
+
 import {
   addProduct,
   getAllProducts,
@@ -11,23 +13,27 @@ import {
 // ============================
 export const createProduct = async (req, res) => {
   try {
+
+
     const {
-      seller_id,
       name,
       description,
       price,
       stock,
       category,
-      image,
       brand,
     } = req.body;
 
-    if (!seller_id || !name || !price) {
+    const seller_id = req.user.id;
+
+    if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: "Seller ID, Product Name and Price are required",
+        message: "Product image is required",
       });
     }
+
+    const imageUpload = await uploadToCloudinary(req.file.buffer);
 
     const product = await addProduct(
       seller_id,
@@ -36,13 +42,13 @@ export const createProduct = async (req, res) => {
       price,
       stock,
       category,
-      image,
+      imageUpload.secure_url,
       brand
     );
 
     res.status(201).json({
       success: true,
-      message: "Product added successfully",
+      message: "Product Created Successfully",
       product,
     });
   } catch (error) {
@@ -50,8 +56,7 @@ export const createProduct = async (req, res) => {
 
     res.status(500).json({
       success: false,
-      message: "Failed to add product",
-      error: error.message,
+      message: error.message,
     });
   }
 };

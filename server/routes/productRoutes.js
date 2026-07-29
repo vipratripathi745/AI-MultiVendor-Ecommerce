@@ -1,4 +1,6 @@
 import express from "express";
+import protect from "../middleware/authMiddleware.js";
+import upload from "../middleware/uploadMiddleware.js";
 
 import {
   createProduct,
@@ -11,7 +13,7 @@ import {
 const router = express.Router();
 
 // Create Product
-router.post("/", createProduct);
+router.post("/", protect, upload.single("image"),createProduct);
 
 // Get All Products
 router.get("/", fetchProducts);
@@ -20,9 +22,9 @@ router.get("/", fetchProducts);
 router.get("/:id", fetchProduct);
 
 // Update Product
-router.put("/:id", editProduct);
+router.put("/:id",protect, editProduct);
 
 // Delete Product
-router.delete("/:id", removeProduct);
+router.delete("/:id",protect, removeProduct);
 
 export default router;
