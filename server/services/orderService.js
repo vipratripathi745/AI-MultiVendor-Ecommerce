@@ -1,11 +1,31 @@
 import pool from "../config/db.js";
 
 import {
+  ORDER_STATUS,
+  ORDER_TRANSITIONS,
+  VALID_ORDER_STATUS,
+} from "../constants/orderStatus.js";
+
+import {
   createOrder,
   createOrderItem,
+  getOrderByIdForAdmin,
+  updateOrderStatus,
+  getOrderByIdForTransaction,
+  getOrderItemsForTransaction,
+  restoreProductStock,
+  cancelOrderTransaction,
 } from "../models/orderModel.js";
 
-import { getCartByUser } from "../models/cartModel.js";
+import {
+  lockProductForUpdate,
+  decreaseProductStock,
+} from "../models/productModel.js";
+
+import {
+  getCartByUser,
+  clearCart,
+} from "../models/cartModel.js";
 
 // =======================================
 // Checkout Service
@@ -18,38 +38,29 @@ export const checkoutService = async (
   const client = await pool.connect();
 
   try {
-    // Start Transaction
     await client.query("BEGIN");
 
-    // Get User Cart
     const cart = await getCartByUser(user_id);
 
     if (cart.length === 0) {
-      throw new Error("Cart is empty");
+      throw new Error("Cart is empty.");
     }
 
-    // Lock Products & Validate Stock
     let total = 0;
 
+    // Lock Products & Validate Stock
     for (const item of cart) {
-      const result = await client.query(
-        `
-        SELECT id, stock
-        FROM products
-        WHERE id = $1
-        FOR UPDATE;
-        `,
-        [item.product_id]
+      const product = await lockProductForUpdate(
+        client,
+        item.product_id
       );
 
-      const product = result.rows[0];
-
       if (!product) {
-        throw new Error(`${item.name} not found`);
+        throw new Error(`${item.name} not found.`);
       }
 
       if (product.stock < item.quantity) {
-        throw new Error(`${item.name} is out of stock`);
+        throw new Error(`${item.name} is out of stock.`);
       }
 
       total += Number(item.price) * item.quantity;
@@ -75,36 +86,115 @@ export const checkoutService = async (
       );
     }
 
-    // Update Product Stock
+    // Reduce Product Stock
     for (const item of cart) {
-      await client.query(
-        `
-        UPDATE products
-        SET stock = stock - $1
-        WHERE id = $2;
-        `,
-        [item.quantity, item.product_id]
+      await decreaseProductStock(
+        client,
+        item.product_id,
+        item.quantity
       );
     }
 
     // Clear Cart
-    await client.query(
-      `
-      DELETE FROM cart
-      WHERE user_id = $1;
-      `,
-      [user_id]
-    );
+    await clearCart(client, user_id);
 
-    // Commit Transaction
     await client.query("COMMIT");
 
     return order;
   } catch (error) {
-    // Rollback Transaction
     await client.query("ROLLBACK");
     throw error;
   } finally {
     client.release();
   }
+};
+
+// =======================================
+// Cancel Order Service
+// =======================================
+export const cancelOrderService = async (
+  order_id,
+  user_id
+) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // Lock Order
+    const order = await getOrderByIdForTransaction(
+      client,
+      order_id,
+      user_id
+    );
+
+    if (!order) {
+      throw new Error("Order not found.");
+    }
+
+    if (order.status !== ORDER_STATUS.PENDING) {
+      throw new Error(
+        "Only pending orders can be cancelled."
+      );
+    }
+
+    // Restore Product Stock
+    const items = await getOrderItemsForTransaction(
+      client,
+      order_id
+    );
+
+    for (const item of items) {
+      await restoreProductStock(
+        client,
+        item.product_id,
+        item.quantity
+      );
+    }
+
+    // Cancel Order
+    const cancelledOrder =
+      await cancelOrderTransaction(
+        client,
+        order_id
+      );
+
+    await client.query("COMMIT");
+
+    return cancelledOrder;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+// =======================================
+// Admin Update Order Status Service
+// =======================================
+export const updateOrderStatusService = async (
+  order_id,
+  status
+) => {
+  if (!VALID_ORDER_STATUS.includes(status)) {
+    throw new Error("Invalid order status.");
+  }
+
+  const order = await getOrderByIdForAdmin(order_id);
+
+  if (!order) {
+    throw new Error("Order not found.");
+  }
+
+  const allowedTransitions =
+    ORDER_TRANSITIONS[order.status];
+
+  if (!allowedTransitions.includes(status)) {
+    throw new Error(
+      `Invalid status transition from '${order.status}' to '${status}'.`
+    );
+  }
+
+  return await updateOrderStatus(order_id, status);
 };

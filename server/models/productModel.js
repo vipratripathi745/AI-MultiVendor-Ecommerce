@@ -46,7 +46,7 @@ export const getAllProducts = async () => {
 // Get Product By ID
 export const getProductById = async (id) => {
   const result = await pool.query(
-    "SELECT * FROM products WHERE id=$1",
+    "SELECT * FROM products WHERE id = $1",
     [id]
   );
 
@@ -67,15 +67,15 @@ export const updateProduct = async (
   const query = `
     UPDATE products
     SET
-      name=$1,
-      description=$2,
-      price=$3,
-      stock=$4,
-      category=$5,
-      image=$6,
-      brand=$7,
-      updated_at=CURRENT_TIMESTAMP
-    WHERE id=$8
+      name = $1,
+      description = $2,
+      price = $3,
+      stock = $4,
+      category = $5,
+      image = $6,
+      brand = $7,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = $8
     RETURNING *;
   `;
 
@@ -98,7 +98,41 @@ export const updateProduct = async (
 // Delete Product
 export const deleteProduct = async (id) => {
   await pool.query(
-    "DELETE FROM products WHERE id=$1",
+    "DELETE FROM products WHERE id = $1",
     [id]
+  );
+};
+
+// Lock Product For Checkout
+export const lockProductForUpdate = async (
+  client,
+  product_id
+) => {
+  const result = await client.query(
+    `
+    SELECT id, name, stock
+    FROM products
+    WHERE id = $1
+    FOR UPDATE;
+    `,
+    [product_id]
+  );
+
+  return result.rows[0];
+};
+
+// Reduce Product Stock
+export const decreaseProductStock = async (
+  client,
+  product_id,
+  quantity
+) => {
+  await client.query(
+    `
+    UPDATE products
+    SET stock = stock - $1
+    WHERE id = $2;
+    `,
+    [quantity, product_id]
   );
 };

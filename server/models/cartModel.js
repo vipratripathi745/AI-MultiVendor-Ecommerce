@@ -131,13 +131,16 @@ export const removeCartItem = async (
 };
 
 // ===============================
-// Clear Cart
+// Clear Cart (Transaction)
 // ===============================
-export const clearCart = async (user_id) => {
+export const clearCart = async (
+  client,
+  user_id
+) => {
   const query = `
     DELETE FROM cart
     WHERE user_id = $1;
   `;
 
-  await pool.query(query, [user_id]);
+  await client.query(query, [user_id]);
 };

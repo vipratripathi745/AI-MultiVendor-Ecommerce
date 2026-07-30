@@ -1,13 +1,14 @@
 import jwt from "jsonwebtoken";
+import pool from "../config/db.js";
 
-const protect = (req, res, next) => {
+const protect = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
-        message: "Not authorized",
+        message: "Access denied. No token provided.",
       });
     }
 
@@ -15,13 +16,31 @@ const protect = (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded;
+    const result = await pool.query(
+      `
+      SELECT id, name, email, role
+      FROM users
+      WHERE id = $1
+      `,
+      [decoded.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    req.user = result.rows[0];
 
     next();
   } catch (error) {
-    return res.status(401).json({
+    console.error(error);
+
+    res.status(401).json({
       success: false,
-      message: "Invalid Token",
+      message: "Invalid or expired token.",
     });
   }
 };

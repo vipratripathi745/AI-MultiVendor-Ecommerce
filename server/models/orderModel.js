@@ -1,8 +1,8 @@
 import pool from "../config/db.js";
 
-// ===============================
+// ===============================================
 // Create Order
-// ===============================
+// ===============================================
 export const createOrder = async (
   client,
   user_id,
@@ -18,7 +18,7 @@ export const createOrder = async (
       payment_method,
       shipping_address
     )
-    VALUES ($1, $2, $3, $4)
+    VALUES ($1,$2,$3,$4)
     RETURNING *;
   `;
 
@@ -32,9 +32,9 @@ export const createOrder = async (
   return result.rows[0];
 };
 
-// ===============================
-// Add Order Item
-// ===============================
+// ===============================================
+// Create Order Item
+// ===============================================
 export const createOrderItem = async (
   client,
   order_id,
@@ -50,7 +50,7 @@ export const createOrderItem = async (
       quantity,
       price
     )
-    VALUES ($1, $2, $3, $4);
+    VALUES ($1,$2,$3,$4);
   `;
 
   await client.query(query, [
@@ -61,9 +61,9 @@ export const createOrderItem = async (
   ]);
 };
 
-// ===============================
-// Get User Orders
-// ===============================
+// ===============================================
+// Get Orders By User
+// ===============================================
 export const getOrdersByUser = async (user_id) => {
   const query = `
     SELECT *
@@ -77,9 +77,9 @@ export const getOrdersByUser = async (user_id) => {
   return result.rows;
 };
 
-// ===============================
-// Get Order By Id
-// ===============================
+// ===============================================
+// Get Order By Id (Customer)
+// ===============================================
 export const getOrderById = async (
   order_id,
   user_id
@@ -99,19 +99,44 @@ export const getOrderById = async (
   return result.rows[0];
 };
 
-// ===============================
+// ===============================================
+// Get Order By Id (Transaction)
+// ===============================================
+export const getOrderByIdForTransaction = async (
+  client,
+  order_id,
+  user_id
+) => {
+  const query = `
+    SELECT *
+    FROM orders
+    WHERE id = $1
+      AND user_id = $2
+    FOR UPDATE;
+  `;
+
+  const result = await client.query(query, [
+    order_id,
+    user_id,
+  ]);
+
+  return result.rows[0];
+};
+
+// ===============================================
 // Get Order Items
-// ===============================
+// ===============================================
 export const getOrderItems = async (order_id) => {
   const query = `
     SELECT
       oi.id,
+      oi.product_id,
       oi.quantity,
       oi.price,
 
       p.name,
-      p.image,
-      p.brand
+      p.brand,
+      p.image
 
     FROM order_items oi
 
@@ -126,25 +151,164 @@ export const getOrderItems = async (order_id) => {
   return result.rows;
 };
 
-// ===============================
-// Cancel Order
-// ===============================
+// ===============================================
+// Get Order Items (Transaction)
+// ===============================================
+export const getOrderItemsForTransaction = async (
+  client,
+  order_id
+) => {
+  const query = `
+    SELECT
+      product_id,
+      quantity
+    FROM order_items
+    WHERE order_id = $1;
+  `;
+
+  const result = await client.query(query, [order_id]);
+
+  return result.rows;
+};
+
+// ===============================================
+// Restore Product Stock
+// ===============================================
+export const restoreProductStock = async (
+  client,
+  product_id,
+  quantity
+) => {
+  const query = `
+    UPDATE products
+    SET stock = stock + $1
+    WHERE id = $2;
+  `;
+
+  await client.query(query, [
+    quantity,
+    product_id,
+  ]);
+};
+
+// ===============================================
+// Cancel Order (Transaction)
+// ===============================================
+export const cancelOrderTransaction = async (
+  client,
+  order_id
+) => {
+  const query = `
+    UPDATE orders
+    SET
+      status = 'Cancelled',
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = $1
+    RETURNING *;
+  `;
+
+  const result = await client.query(query, [
+    order_id,
+  ]);
+
+  return result.rows[0];
+};
+
+// ===============================================
+// Cancel Order (Normal)
+// ===============================================
 export const cancelOrder = async (
   order_id,
   user_id
 ) => {
   const query = `
     UPDATE orders
-    SET status = 'Cancelled',
-        updated_at = CURRENT_TIMESTAMP
+    SET
+      status = 'Cancelled',
+      updated_at = CURRENT_TIMESTAMP
     WHERE id = $1
       AND user_id = $2
+      AND status = 'Pending'
     RETURNING *;
   `;
 
   const result = await pool.query(query, [
     order_id,
     user_id,
+  ]);
+
+  return result.rows[0];
+};
+
+// ===============================================
+// Admin - Get All Orders
+// ===============================================
+export const getAllOrders = async () => {
+  const query = `
+    SELECT
+      o.*,
+      u.name,
+      u.email
+
+    FROM orders o
+
+    JOIN users u
+      ON o.user_id = u.id
+
+    ORDER BY o.created_at DESC;
+  `;
+
+  const result = await pool.query(query);
+
+  return result.rows;
+};
+
+// ===============================================
+// Admin - Get Order By Id
+// ===============================================
+export const getOrderByIdForAdmin = async (
+  order_id
+) => {
+  const query = `
+    SELECT
+      o.*,
+      u.name,
+      u.email
+
+    FROM orders o
+
+    JOIN users u
+      ON o.user_id = u.id
+
+    WHERE o.id = $1;
+  `;
+
+  const result = await pool.query(query, [
+    order_id,
+  ]);
+
+  return result.rows[0];
+};
+
+// ===============================================
+// Admin - Update Order Status
+// ===============================================
+export const updateOrderStatus = async (
+  order_id,
+  status
+) => {
+  const query = `
+    UPDATE orders
+    SET
+      status = $1,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = $2
+    RETURNING *;
+  `;
+
+  const result = await pool.query(query, [
+    status,
+    order_id,
   ]);
 
   return result.rows[0];

@@ -2,13 +2,17 @@ import {
   getOrdersByUser,
   getOrderById,
   getOrderItems,
-  cancelOrder,
+  getAllOrders,
 } from "../models/orderModel.js";
 
-import { checkoutService } from "../services/orderService.js";
+import {
+  checkoutService,
+  cancelOrderService,
+  updateOrderStatusService,
+} from "../services/orderService.js";
 
 // ========================================
-// Checkout
+// Customer - Checkout
 // ========================================
 export const checkout = async (req, res) => {
   try {
@@ -43,7 +47,7 @@ export const checkout = async (req, res) => {
 };
 
 // ========================================
-// Get My Orders
+// Customer - Get My Orders
 // ========================================
 export const getMyOrders = async (req, res) => {
   try {
@@ -65,7 +69,7 @@ export const getMyOrders = async (req, res) => {
 };
 
 // ========================================
-// Get Single Order
+// Customer - Get Single Order
 // ========================================
 export const getSingleOrder = async (req, res) => {
   try {
@@ -99,31 +103,84 @@ export const getSingleOrder = async (req, res) => {
 };
 
 // ========================================
-// Cancel Order
+// Customer - Cancel Order
 // ========================================
 export const cancelUserOrder = async (req, res) => {
   try {
-    const order = await cancelOrder(
+    const order = await cancelOrderService(
       req.params.id,
       req.user.id
     );
 
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
-
     res.status(200).json({
       success: true,
-      message: "Order cancelled successfully",
+      message: "Order cancelled successfully.",
       order,
     });
   } catch (error) {
     console.error(error);
 
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ========================================
+// Admin - Get All Orders
+// ========================================
+export const adminGetAllOrders = async (req, res) => {
+  try {
+    const orders = await getAllOrders();
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
+  } catch (error) {
+    console.error(error);
+
     res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ========================================
+// Admin - Update Order Status
+// ========================================
+export const adminUpdateOrderStatus = async (
+  req,
+  res
+) => {
+  try {
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required.",
+      });
+    }
+
+    const order =
+      await updateOrderStatusService(
+        req.params.id,
+        status
+      );
+
+    res.status(200).json({
+      success: true,
+      message: "Order status updated successfully.",
+      order,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(400).json({
       success: false,
       message: error.message,
     });
