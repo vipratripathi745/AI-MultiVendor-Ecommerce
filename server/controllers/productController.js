@@ -13,8 +13,6 @@ import {
 // ============================
 export const createProduct = async (req, res) => {
   try {
-
-
     const {
       name,
       description,
@@ -66,11 +64,34 @@ export const createProduct = async (req, res) => {
 // ============================
 export const fetchProducts = async (req, res) => {
   try {
-    const products = await getAllProducts();
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const search = req.query.search || "";
+    const category = req.query.category || "";
+    const brand = req.query.brand || "";
+    const minPrice = req.query.minPrice || "";
+    const maxPrice = req.query.maxPrice || "";
+    const sort = req.query.sort || "newest";
+
+    const { products, totalProducts } = await getAllProducts(
+      page,
+      limit,
+      search,
+      category,
+      brand,
+      minPrice,
+      maxPrice,
+      sort
+    );
+
+    const totalPages = Math.ceil(totalProducts / limit);
 
     res.status(200).json({
       success: true,
-      count: products.length,
+      currentPage: page,
+      totalPages,
+      totalProducts,
       products,
     });
   } catch (error) {

@@ -1,6 +1,8 @@
 import pool from "../config/db.js";
 
+// ============================
 // Add Product
+// ============================
 export const addProduct = async (
   seller_id,
   name,
@@ -34,26 +36,152 @@ export const addProduct = async (
   return result.rows[0];
 };
 
+// ============================
 // Get All Products
-export const getAllProducts = async () => {
-  const result = await pool.query(
-    "SELECT * FROM products ORDER BY created_at DESC"
-  );
+// (Pagination + Search + Filters + Sorting)
+// ============================
+export const getAllProducts = async (
+  page = 1,
+  limit = 10,
+  search = "",
+  category = "",
+  brand = "",
+  minPrice = "",
+  maxPrice = "",
+  sort = "newest"
+) => {
+  const offset = (page - 1) * limit;
 
-  return result.rows;
+  let query = `
+    SELECT *
+    FROM products
+    WHERE 1 = 1
+  `;
+
+  let countQuery = `
+    SELECT COUNT(*) AS total
+    FROM products
+    WHERE 1 = 1
+  `;
+
+  const values = [];
+  let index = 1;
+
+  // Search
+  if (search) {
+    query += `
+      AND (
+        name ILIKE $${index}
+        OR brand ILIKE $${index}
+        OR category ILIKE $${index}
+      )
+    `;
+
+    countQuery += `
+      AND (
+        name ILIKE $${index}
+        OR brand ILIKE $${index}
+        OR category ILIKE $${index}
+      )
+    `;
+
+    values.push(`%${search}%`);
+    index++;
+  }
+
+  // Category
+  if (category) {
+    query += ` AND category ILIKE $${index}`;
+    countQuery += ` AND category ILIKE $${index}`;
+
+    values.push(category);
+    index++;
+  }
+
+  // Brand
+  if (brand) {
+    query += ` AND brand ILIKE $${index}`;
+    countQuery += ` AND brand ILIKE $${index}`;
+
+    values.push(brand);
+    index++;
+  }
+
+  // Minimum Price
+  if (minPrice) {
+    query += ` AND price >= $${index}`;
+    countQuery += ` AND price >= $${index}`;
+
+    values.push(Number(minPrice));
+    index++;
+  }
+
+  // Maximum Price
+  if (maxPrice) {
+    query += ` AND price <= $${index}`;
+    countQuery += ` AND price <= $${index}`;
+
+    values.push(Number(maxPrice));
+    index++;
+  }
+
+  // Sorting
+  switch (sort) {
+    case "price_asc":
+      query += ` ORDER BY price ASC`;
+      break;
+
+    case "price_desc":
+      query += ` ORDER BY price DESC`;
+      break;
+
+    case "oldest":
+      query += ` ORDER BY created_at ASC`;
+      break;
+
+    default:
+      query += ` ORDER BY created_at DESC`;
+      break;
+  }
+
+  query += `
+    LIMIT $${index}
+    OFFSET $${index + 1}
+  `;
+
+  const productsResult = await pool.query(query, [
+    ...values,
+    limit,
+    offset,
+  ]);
+
+  const countResult = await pool.query(countQuery, values);
+
+  return {
+    products: productsResult.rows,
+    totalProducts: Number(countResult.rows[0].total),
+  };
 };
 
+// ============================
 // Get Product By ID
+// ============================
 export const getProductById = async (id) => {
   const result = await pool.query(
-    "SELECT * FROM products WHERE id = $1",
+    `
+    SELECT *
+    FROM products
+    WHERE id = $1;
+    `,
     [id]
   );
 
   return result.rows[0];
 };
 
+// ============================
 // Update Product
+// ============================
 export const updateProduct = async (
   id,
   name,
@@ -95,15 +223,22 @@ export const updateProduct = async (
   return result.rows[0];
 };
 
+// ============================
 // Delete Product
+// ============================
 export const deleteProduct = async (id) => {
   await pool.query(
-    "DELETE FROM products WHERE id = $1",
+    `
+    DELETE FROM products
+    WHERE id = $1;
+    `,
     [id]
   );
 };
 
+// ============================
 // Lock Product For Checkout
+// ============================
 export const lockProductForUpdate = async (
   client,
   product_id
@@ -121,7 +256,9 @@ export const lockProductForUpdate = async (
   return result.rows[0];
 };
 
+// ============================
 // Reduce Product Stock
+// ============================
 export const decreaseProductStock = async (
   client,
   product_id,
