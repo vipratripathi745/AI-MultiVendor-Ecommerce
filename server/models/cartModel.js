@@ -6,13 +6,15 @@ import pool from "../config/db.js";
 export const addToCart = async (user_id, product_id, quantity) => {
   // Check if product already exists in cart
   const checkQuery = `
-    SELECT * FROM cart
-    WHERE user_id = $1 AND product_id = $2;
+    SELECT *
+    FROM cart
+    WHERE user_id = $1
+      AND product_id = $2;
   `;
 
   const checkResult = await pool.query(checkQuery, [user_id, product_id]);
 
-  // If exists, increase quantity
+  // Product already exists -> Increase quantity
   if (checkResult.rows.length > 0) {
     const updateQuery = `
       UPDATE cart
@@ -32,7 +34,7 @@ export const addToCart = async (user_id, product_id, quantity) => {
     return result.rows[0];
   }
 
-  // Otherwise insert new item
+  // Insert new cart item
   const insertQuery = `
     INSERT INTO cart (user_id, product_id, quantity)
     VALUES ($1, $2, $3)
@@ -81,33 +83,49 @@ export const getCartByUser = async (user_id) => {
 };
 
 // ===============================
-// Update Quantity
+// Update Cart Quantity
 // ===============================
-export const updateCartQuantity = async (cart_id, quantity) => {
+export const updateCartQuantity = async (
+  cart_id,
+  user_id,
+  quantity
+) => {
   const query = `
     UPDATE cart
     SET quantity = $1,
         updated_at = CURRENT_TIMESTAMP
     WHERE id = $2
+      AND user_id = $3
     RETURNING *;
   `;
 
-  const result = await pool.query(query, [quantity, cart_id]);
+  const result = await pool.query(query, [
+    quantity,
+    cart_id,
+    user_id,
+  ]);
 
   return result.rows[0];
 };
 
 // ===============================
-// Remove Item
+// Remove Cart Item
 // ===============================
-export const removeCartItem = async (cart_id) => {
+export const removeCartItem = async (
+  cart_id,
+  user_id
+) => {
   const query = `
     DELETE FROM cart
     WHERE id = $1
+      AND user_id = $2
     RETURNING *;
   `;
 
-  const result = await pool.query(query, [cart_id]);
+  const result = await pool.query(query, [
+    cart_id,
+    user_id,
+  ]);
 
   return result.rows[0];
 };

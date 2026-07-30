@@ -23,6 +23,13 @@ export const createCartItem = async (req, res) => {
       });
     }
 
+    if (quantity <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Quantity must be greater than 0",
+      });
+    }
+
     const product = await getProductById(product_id);
 
     if (!product) {
@@ -93,25 +100,45 @@ export const fetchCart = async (req, res) => {
 export const editCartItem = async (req, res) => {
   try {
     const { quantity } = req.body;
+    const cart_id = req.params.id;
+    const user_id = req.user.id;
 
     if (!quantity || quantity <= 0) {
       return res.status(400).json({
         success: false,
-        message: "Valid quantity is required",
+        message: "Quantity must be greater than 0",
       });
     }
 
-    const cart = await updateCartQuantity(
-      req.params.id,
-      quantity
+    // Check whether product exists in user's cart
+    const cartItems = await getCartByUser(user_id);
+
+    const cartItem = cartItems.find(
+      (item) => item.id == cart_id
     );
 
-    if (!cart) {
+    if (!cartItem) {
       return res.status(404).json({
         success: false,
         message: "Cart item not found",
       });
     }
+
+    // Check stock
+    const product = await getProductById(cartItem.product_id);
+
+    if (quantity > product.stock) {
+      return res.status(400).json({
+        success: false,
+        message: "Insufficient stock",
+      });
+    }
+
+    const cart = await updateCartQuantity(
+      cart_id,
+      user_id,
+      quantity
+    );
 
     res.status(200).json({
       success: true,
@@ -133,7 +160,13 @@ export const editCartItem = async (req, res) => {
 // ===============================
 export const deleteCartItem = async (req, res) => {
   try {
-    const cart = await removeCartItem(req.params.id);
+    const cart_id = req.params.id;
+    const user_id = req.user.id;
+
+    const cart = await removeCartItem(
+      cart_id,
+      user_id
+    );
 
     if (!cart) {
       return res.status(404).json({
@@ -161,7 +194,9 @@ export const deleteCartItem = async (req, res) => {
 // ===============================
 export const deleteCart = async (req, res) => {
   try {
-    await clearCart(req.user.id);
+    const user_id = req.user.id;
+
+    await clearCart(user_id);
 
     res.status(200).json({
       success: true,
