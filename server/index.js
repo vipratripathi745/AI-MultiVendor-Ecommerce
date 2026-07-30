@@ -9,6 +9,11 @@ import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import wishlistRoutes from "./routes/wishlistRoutes.js";
+import couponRoutes from "./routes/couponRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 const app = express();
 
@@ -20,6 +25,11 @@ app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/coupons", couponRoutes);
+app.use("/api/payments", paymentRoutes);
 
 app.get("/", async (req, res) => {
   try {

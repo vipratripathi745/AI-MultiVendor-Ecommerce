@@ -313,3 +313,17 @@ export const updateOrderStatus = async (
 
   return result.rows[0];
 };
+// ===============================================
+// Get Order By Id (Payment)
+// ===============================================
+export const getOrderByIdOnly = async (order_id) => {
+  const query = `
+    SELECT *
+    FROM orders
+    WHERE id = $1;
+  `;
+
+  const result = await pool.query(query, [order_id]);
+
+  return result.rows[0];
+};
