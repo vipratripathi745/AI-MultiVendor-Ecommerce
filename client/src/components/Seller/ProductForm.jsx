@@ -1,7 +1,14 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
 import { createProduct } from "../../services/productService";
 
 function ProductForm() {
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -33,25 +40,50 @@ function ProductForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const data = new FormData();
+    if (!image) {
+      toast.error("Please select an image");
+      return;
+    }
 
-    data.append("name", formData.name);
-    data.append("description", formData.description);
-    data.append("price", formData.price);
-    data.append("stock", formData.stock);
-    data.append("category", formData.category);
-    data.append("brand", formData.brand);
-    data.append("image", image);
+    setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
+      const data = new FormData();
 
-      const response = await createProduct(data, token);
+      data.append("name", formData.name);
+      data.append("description", formData.description);
+      data.append("price", formData.price);
+      data.append("stock", formData.stock);
+      data.append("category", formData.category);
+      data.append("brand", formData.brand);
+      data.append("image", image);
 
-      alert(response.message);
+      const response = await createProduct(data);
+
+      toast.success(response.message);
+
+      setFormData({
+        name: "",
+        description: "",
+        price: "",
+        stock: "",
+        category: "",
+        brand: "",
+      });
+
+      setImage(null);
+      setPreview("");
+
+      navigate("/seller/products");
     } catch (error) {
-      console.error(error);
-      alert("Failed to create product");
+      console.log(error);
+
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to create product"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,50 +93,66 @@ function ProductForm() {
       className="bg-white p-8 rounded-xl shadow-lg space-y-5"
     >
       <input
+        type="text"
         name="name"
-        placeholder="Product Name"
-        className="w-full border p-3 rounded-lg"
+        value={formData.name}
         onChange={handleChange}
+        placeholder="Product Name"
+        className="w-full border rounded-lg p-3"
+        required
       />
 
       <textarea
         name="description"
-        placeholder="Description"
-        className="w-full border p-3 rounded-lg"
+        value={formData.description}
         onChange={handleChange}
+        placeholder="Description"
+        className="w-full border rounded-lg p-3"
+        rows="4"
+        required
       />
 
       <div className="grid md:grid-cols-2 gap-4">
         <input
-          name="price"
           type="number"
-          placeholder="Price"
-          className="border p-3 rounded-lg"
+          name="price"
+          value={formData.price}
           onChange={handleChange}
+          placeholder="Price"
+          className="border rounded-lg p-3"
+          required
         />
 
         <input
-          name="stock"
           type="number"
-          placeholder="Stock"
-          className="border p-3 rounded-lg"
+          name="stock"
+          value={formData.stock}
           onChange={handleChange}
+          placeholder="Stock"
+          className="border rounded-lg p-3"
+          required
         />
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
         <input
+          type="text"
           name="category"
-          placeholder="Category"
-          className="border p-3 rounded-lg"
+          value={formData.category}
           onChange={handleChange}
+          placeholder="Category"
+          className="border rounded-lg p-3"
+          required
         />
 
         <input
+          type="text"
           name="brand"
-          placeholder="Brand"
-          className="border p-3 rounded-lg"
+          value={formData.brand}
           onChange={handleChange}
+          placeholder="Brand"
+          className="border rounded-lg p-3"
+          required
         />
       </div>
 
@@ -117,15 +165,17 @@ function ProductForm() {
       {preview && (
         <img
           src={preview}
-          alt="preview"
-          className="w-48 rounded-lg"
+          alt="Preview"
+          className="w-52 h-52 object-cover rounded-lg border"
         />
       )}
 
       <button
-        className="bg-blue-600 text-white px-8 py-3 rounded-lg"
+        type="submit"
+        disabled={loading}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
       >
-        Upload Product
+        {loading ? "Uploading..." : "Upload Product"}
       </button>
     </form>
   );
