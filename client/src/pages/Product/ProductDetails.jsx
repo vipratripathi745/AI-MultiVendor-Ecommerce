@@ -4,12 +4,16 @@ import toast from "react-hot-toast";
 
 import { getProduct } from "../../services/productService";
 import { addToCart } from "../../services/cartService";
+import { addToWishlist } from "../../services/wishlistService";
 
 function ProductDetails() {
   const { id } = useParams();
 
   const [loading, setLoading] = useState(true);
-  const [addingToCart, setAddingToCart] = useState(false);
+
+  const [addingCart, setAddingCart] = useState(false);
+  const [addingWishlist, setAddingWishlist] =
+    useState(false);
 
   const [product, setProduct] = useState(null);
 
@@ -25,10 +29,7 @@ function ProductDetails() {
     } catch (error) {
       console.log(error);
 
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to load product"
-      );
+      toast.error("Failed to load product");
     } finally {
       setLoading(false);
     }
@@ -36,39 +37,57 @@ function ProductDetails() {
 
   const handleAddToCart = async () => {
     try {
-      setAddingToCart(true);
+      setAddingCart(true);
 
       const response = await addToCart(product.id, 1);
 
       toast.success(response.message);
     } catch (error) {
-      console.log(error);
-
       toast.error(
         error.response?.data?.message ||
-          "Failed to add product to cart"
+          "Failed to add to cart"
       );
     } finally {
-      setAddingToCart(false);
+      setAddingCart(false);
+    }
+  };
+
+  const handleWishlist = async () => {
+  console.log("Wishlist button clicked");
+  console.log(product);
+
+    try {
+        setAddingWishlist(true);
+
+        const response = await addToWishlist(product.id);
+
+        console.log(response);
+
+        toast.success(response.message);
+    } catch (error) {
+        console.log(error);
+
+        toast.error(
+        error.response?.data?.message ||
+        "Failed to add to wishlist"
+        );
+    } finally {
+        setAddingWishlist(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[70vh]">
-        <h2 className="text-2xl font-bold">
-          Loading Product...
-        </h2>
+      <div className="text-center py-20 text-3xl">
+        Loading Product...
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="flex justify-center items-center h-[70vh]">
-        <h2 className="text-2xl font-bold">
-          Product Not Found
-        </h2>
+      <div className="text-center py-20 text-3xl">
+        Product Not Found
       </div>
     );
   }
@@ -78,31 +97,23 @@ function ProductDetails() {
 
       <div className="grid lg:grid-cols-2 gap-12">
 
-        {/* Product Image */}
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full rounded-xl shadow-lg"
+        />
 
         <div>
 
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full rounded-xl shadow-lg object-cover"
-          />
-
-        </div>
-
-        {/* Product Details */}
-
-        <div>
-
-          <h1 className="text-4xl font-bold mb-3">
+          <h1 className="text-4xl font-bold">
             {product.name}
           </h1>
 
-          <p className="text-lg text-gray-500">
+          <p className="text-gray-500 mt-3">
             Brand : {product.brand}
           </p>
 
-          <p className="text-lg text-gray-500">
+          <p className="text-gray-500">
             Category : {product.category}
           </p>
 
@@ -110,46 +121,39 @@ function ProductDetails() {
             ₹{product.price}
           </h2>
 
-          <p className="mt-8 text-gray-700 leading-8">
+          <p className="mt-8 leading-8">
             {product.description}
           </p>
 
-          <div className="mt-8">
+          <p className="mt-8">
+            Stock :
 
-            <span className="font-semibold">
-              Stock :
+            <span className="ml-2 text-green-600 font-semibold">
+              {product.stock}
             </span>
 
-            {product.stock > 0 ? (
-              <span className="ml-2 text-green-600 font-semibold">
-                {product.stock} Available
-              </span>
-            ) : (
-              <span className="ml-2 text-red-600 font-semibold">
-                Out of Stock
-              </span>
-            )}
+          </p>
 
-          </div>
-
-          <div className="flex gap-4 mt-10">
+          <div className="flex gap-5 mt-10">
 
             <button
               onClick={handleAddToCart}
-              disabled={
-                addingToCart || product.stock === 0
-              }
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-lg transition"
+              disabled={addingCart}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg"
             >
-              {addingToCart
+              {addingCart
                 ? "Adding..."
                 : "Add To Cart"}
             </button>
 
             <button
-              className="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg transition"
+              onClick={handleWishlist}
+              disabled={addingWishlist}
+              className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg"
             >
-              Add To Wishlist
+              {addingWishlist
+                ? "Adding..."
+                : "❤ Wishlist"}
             </button>
 
           </div>

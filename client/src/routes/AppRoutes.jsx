@@ -5,8 +5,13 @@ import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home/Home";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
+
 import ProductDetails from "../pages/Product/ProductDetails";
 import Cart from "../pages/Cart/Cart";
+import Wishlist from "../pages/Wishlist/Wishlist";
+import Checkout from "../pages/Checkout/Checkout";
+import MyOrders from "../pages/Orders/MyOrders";
+import OrderDetails from "../pages/Orders/OrderDetails";
 
 import Dashboard from "../pages/Seller/Dashboard";
 import AddProduct from "../pages/Seller/AddProduct";
@@ -20,7 +25,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<MainLayout />}>
 
-        {/* Public */}
+        {/* ================= Public Routes ================= */}
 
         <Route index element={<Home />} />
 
@@ -33,6 +38,8 @@ function AppRoutes() {
           element={<ProductDetails />}
         />
 
+        {/* ================= Customer Routes ================= */}
+
         <Route
           path="cart"
           element={
@@ -42,7 +49,43 @@ function AppRoutes() {
           }
         />
 
-        {/* Seller */}
+        <Route
+          path="wishlist"
+          element={
+            <ProtectedRoute>
+              <Wishlist />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="checkout"
+          element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="orders"
+          element={
+            <ProtectedRoute>
+              <MyOrders />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="orders/:id"
+          element={
+            <ProtectedRoute>
+              <OrderDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ================= Seller Routes ================= */}
 
         <Route
           path="seller/dashboard"
