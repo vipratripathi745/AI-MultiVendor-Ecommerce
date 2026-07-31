@@ -164,6 +164,24 @@ export const getAllProducts = async (
 };
 
 // ============================
+// Get Products By Seller
+// ============================
+
+export const getSellerProducts = async (sellerId) => {
+  const result = await pool.query(
+    `
+    SELECT *
+    FROM products
+    WHERE seller_id = $1
+    ORDER BY created_at DESC;
+    `,
+    [sellerId]
+  );
+
+  return result.rows;
+};
+
+// ============================
 // Get Product By ID
 // ============================
 export const getProductById = async (id) => {
@@ -272,4 +290,38 @@ export const decreaseProductStock = async (
     `,
     [quantity, product_id]
   );
+};
+
+// ============================
+// Get Product By ID and Seller
+// ============================
+export const getProductByIdAndSeller = async (id, sellerId) => {
+  const result = await pool.query(
+    `
+    SELECT *
+    FROM products
+    WHERE id = $1
+    AND seller_id = $2;
+    `,
+    [id, sellerId]
+  );
+
+  return result.rows[0];
+};
+
+// ============================
+// Delete Product By Seller
+// ============================
+export const deleteProductBySeller = async (id, sellerId) => {
+  const result = await pool.query(
+    `
+    DELETE FROM products
+    WHERE id = $1
+    AND seller_id = $2
+    RETURNING *;
+    `,
+    [id, sellerId]
+  );
+
+  return result.rows[0];
 };
