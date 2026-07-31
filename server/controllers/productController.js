@@ -3,11 +3,12 @@ import uploadToCloudinary from "../utils/uploadToCloudinary.js";
 import {
   addProduct,
   getAllProducts,
+  getAllProductsForAdmin,
   getSellerProducts,
   getProductById,
-  getProductByIdAndSeller,
   updateProduct,
-  deleteProductBySeller,
+  deleteProduct,
+  deleteProductByAdmin,
 } from "../models/productModel.js";
 
 // ============================
@@ -33,7 +34,9 @@ export const createProduct = async (req, res) => {
       });
     }
 
-    const imageUpload = await uploadToCloudinary(req.file.buffer);
+    const imageUpload = await uploadToCloudinary(
+      req.file.buffer
+    );
 
     const product = await addProduct(
       seller_id,
@@ -76,23 +79,24 @@ export const fetchProducts = async (req, res) => {
     const maxPrice = req.query.maxPrice || "";
     const sort = req.query.sort || "newest";
 
-    const { products, totalProducts } = await getAllProducts(
-      page,
-      limit,
-      search,
-      category,
-      brand,
-      minPrice,
-      maxPrice,
-      sort
-    );
-
-    const totalPages = Math.ceil(totalProducts / limit);
+    const { products, totalProducts } =
+      await getAllProducts(
+        page,
+        limit,
+        search,
+        category,
+        brand,
+        minPrice,
+        maxPrice,
+        sort
+      );
 
     res.status(200).json({
       success: true,
       currentPage: page,
-      totalPages,
+      totalPages: Math.ceil(
+        totalProducts / limit
+      ),
       totalProducts,
       products,
     });
@@ -102,18 +106,20 @@ export const fetchProducts = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch products",
-      error: error.message,
     });
   }
 };
 
 // ============================
-// Get Logged-in Seller Products
+// Seller Products
 // ============================
-
-export const fetchSellerProducts = async (req, res) => {
+export const fetchSellerProducts = async (
+  req,
+  res
+) => {
   try {
-    const products = await getSellerProducts(req.user.id);
+    const products =
+      await getSellerProducts(req.user.id);
 
     res.status(200).json({
       success: true,
@@ -125,18 +131,23 @@ export const fetchSellerProducts = async (req, res) => {
 
     res.status(500).json({
       success: false,
-      message: "Failed to fetch seller products",
-      error: error.message,
+      message:
+        "Failed to fetch seller products",
     });
   }
 };
 
 // ============================
-// Get Product By ID
+// Get Single Product
 // ============================
-export const fetchProduct = async (req, res) => {
+export const fetchProduct = async (
+  req,
+  res
+) => {
   try {
-    const product = await getProductById(req.params.id);
+    const product = await getProductById(
+      req.params.id
+    );
 
     if (!product) {
       return res.status(404).json({
@@ -155,7 +166,6 @@ export const fetchProduct = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch product",
-      error: error.message,
     });
   }
 };
@@ -163,34 +173,22 @@ export const fetchProduct = async (req, res) => {
 // ============================
 // Update Product
 // ============================
-export const editProduct = async (req, res) => {
+export const editProduct = async (
+  req,
+  res
+) => {
   try {
-    const product = await getProductById(req.params.id);
-
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
-    }
-
-    let image = product.image;
-
-    if (req.file) {
-      const upload = await uploadToCloudinary(req.file.buffer);
-      image = upload.secure_url;
-    }
-
     const {
       name,
       description,
       price,
       stock,
       category,
+      image,
       brand,
     } = req.body;
 
-    const updatedProduct = await updateProduct(
+    const product = await updateProduct(
       req.params.id,
       name,
       description,
@@ -201,51 +199,126 @@ export const editProduct = async (req, res) => {
       brand
     );
 
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
     res.status(200).json({
       success: true,
-      message: "Product Updated Successfully",
-      product: updatedProduct,
+      message:
+        "Product updated successfully",
+      product,
     });
-
   } catch (error) {
     console.error(error);
 
     res.status(500).json({
       success: false,
-      message: error.message,
+      message:
+        "Failed to update product",
     });
   }
 };
 
 // ============================
-// Delete Product
+// Delete Product (Seller)
 // ============================
-export const removeProduct = async (req, res) => {
+export const removeProduct = async (
+  req,
+  res
+) => {
   try {
-    const product = await getProductByIdAndSeller(
-      req.params.id,
-      req.user.id
+    const product = await getProductById(
+      req.params.id
     );
 
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found or unauthorized",
+        message: "Product not found",
       });
     }
 
-    await deleteProductBySeller(req.params.id, req.user.id);
+    await deleteProduct(req.params.id);
 
     res.status(200).json({
       success: true,
-      message: "Product deleted successfully",
+      message:
+        "Product deleted successfully",
     });
   } catch (error) {
     console.error(error);
 
     res.status(500).json({
       success: false,
-      message: "Failed to delete product",
+      message:
+        "Failed to delete product",
+    });
+  }
+};
+
+// ============================
+// Admin - Get All Products
+// ============================
+export const fetchAdminProducts = async (
+  req,
+  res
+) => {
+  try {
+    const products =
+      await getAllProductsForAdmin();
+
+    res.status(200).json({
+      success: true,
+      totalProducts: products.length,
+      products,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message:
+        "Failed to fetch products",
+    });
+  }
+};
+
+// ============================
+// Admin - Delete Product
+// ============================
+export const removeAdminProduct = async (
+  req,
+  res
+) => {
+  try {
+    const product =
+      await deleteProductByAdmin(
+        req.params.id
+      );
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message:
+        "Product deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message:
+        "Failed to delete product",
     });
   }
 };

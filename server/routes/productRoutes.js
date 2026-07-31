@@ -1,5 +1,7 @@
 import express from "express";
+
 import protect from "../middleware/authMiddleware.js";
+import verifyAdmin from "../middleware/adminMiddleware.js";
 import upload from "../middleware/uploadMiddleware.js";
 
 import {
@@ -9,20 +11,60 @@ import {
   editProduct,
   removeProduct,
   fetchSellerProducts,
+  fetchAdminProducts,
+  removeAdminProduct,
 } from "../controllers/productController.js";
 
 const router = express.Router();
 
-// Create Product
-router.post("/", protect, upload.single("image"),createProduct);
+// ======================================
+// Public Routes
+// ======================================
 
 // Get All Products
 router.get("/", fetchProducts);
 
-router.get("/my-products", protect, fetchSellerProducts);
-
 // Get Single Product
 router.get("/:id", fetchProduct);
+
+// ======================================
+// Seller Routes
+// ======================================
+
+// Create Product
+router.post(
+  "/",
+  protect,
+  upload.single("image"),
+  createProduct
+);
+
+// Get Seller Products
+router.get(
+  "/my-products",
+  protect,
+  fetchSellerProducts
+);
+
+// ======================================
+// Admin Routes
+// ======================================
+
+// Get All Products
+router.get(
+  "/admin/all",
+  protect,
+  verifyAdmin,
+  fetchAdminProducts
+);
+
+// Delete Any Product
+router.delete(
+  "/admin/:id",
+  protect,
+  verifyAdmin,
+  removeAdminProduct
+);
 
 // Update Product
 router.put(
@@ -33,6 +75,30 @@ router.put(
 );
 
 // Delete Product
-router.delete("/:id",protect, removeProduct);
+router.delete(
+  "/:id",
+  protect,
+  removeProduct
+);
+// ======================================
+// Admin Routes
+// ======================================
+
+// Get All Products
+router.get(
+  "/admin/all",
+  protect,
+  verifyAdmin,
+  fetchAdminProducts
+);
+
+// Delete Any Product
+router.delete(
+  "/admin/:id",
+  protect,
+  verifyAdmin,
+  removeAdminProduct
+);
+
 
 export default router;

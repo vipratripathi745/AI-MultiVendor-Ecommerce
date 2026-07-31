@@ -15,7 +15,16 @@ export const addProduct = async (
 ) => {
   const query = `
     INSERT INTO products
-    (seller_id, name, description, price, stock, category, image, brand)
+    (
+      seller_id,
+      name,
+      description,
+      price,
+      stock,
+      category,
+      image,
+      brand
+    )
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
     RETURNING *;
   `;
@@ -38,7 +47,6 @@ export const addProduct = async (
 
 // ============================
 // Get All Products
-// (Pagination + Search + Filters + Sorting)
 // ============================
 export const getAllProducts = async (
   page = 1,
@@ -55,13 +63,13 @@ export const getAllProducts = async (
   let query = `
     SELECT *
     FROM products
-    WHERE 1 = 1
+    WHERE 1=1
   `;
 
   let countQuery = `
     SELECT COUNT(*) AS total
     FROM products
-    WHERE 1 = 1
+    WHERE 1=1
   `;
 
   const values = [];
@@ -107,7 +115,7 @@ export const getAllProducts = async (
     index++;
   }
 
-  // Minimum Price
+  // Min Price
   if (minPrice) {
     query += ` AND price >= $${index}`;
     countQuery += ` AND price >= $${index}`;
@@ -116,7 +124,7 @@ export const getAllProducts = async (
     index++;
   }
 
-  // Maximum Price
+  // Max Price
   if (maxPrice) {
     query += ` AND price <= $${index}`;
     countQuery += ` AND price <= $${index}`;
@@ -125,7 +133,6 @@ export const getAllProducts = async (
     index++;
   }
 
-  // Sorting
   switch (sort) {
     case "price_asc":
       query += ` ORDER BY price ASC`;
@@ -141,7 +148,6 @@ export const getAllProducts = async (
 
     default:
       query += ` ORDER BY created_at DESC`;
-      break;
   }
 
   query += `
@@ -164,15 +170,14 @@ export const getAllProducts = async (
 };
 
 // ============================
-// Get Products By Seller
+// Seller Products
 // ============================
-
 export const getSellerProducts = async (sellerId) => {
   const result = await pool.query(
     `
     SELECT *
     FROM products
-    WHERE seller_id = $1
+    WHERE seller_id=$1
     ORDER BY created_at DESC;
     `,
     [sellerId]
@@ -182,14 +187,14 @@ export const getSellerProducts = async (sellerId) => {
 };
 
 // ============================
-// Get Product By ID
+// Product By Id
 // ============================
 export const getProductById = async (id) => {
   const result = await pool.query(
     `
     SELECT *
     FROM products
-    WHERE id = $1;
+    WHERE id=$1;
     `,
     [id]
   );
@@ -210,33 +215,32 @@ export const updateProduct = async (
   image,
   brand
 ) => {
-  const query = `
+  const result = await pool.query(
+    `
     UPDATE products
     SET
-      name = $1,
-      description = $2,
-      price = $3,
-      stock = $4,
-      category = $5,
-      image = $6,
-      brand = $7,
-      updated_at = CURRENT_TIMESTAMP
-    WHERE id = $8
+      name=$1,
+      description=$2,
+      price=$3,
+      stock=$4,
+      category=$5,
+      image=$6,
+      brand=$7,
+      updated_at=CURRENT_TIMESTAMP
+    WHERE id=$8
     RETURNING *;
-  `;
-
-  const values = [
-    name,
-    description,
-    price,
-    stock,
-    category,
-    image,
-    brand,
-    id,
-  ];
-
-  const result = await pool.query(query, values);
+    `,
+    [
+      name,
+      description,
+      price,
+      stock,
+      category,
+      image,
+      brand,
+      id,
+    ]
+  );
 
   return result.rows[0];
 };
@@ -247,15 +251,16 @@ export const updateProduct = async (
 export const deleteProduct = async (id) => {
   await pool.query(
     `
-    DELETE FROM products
-    WHERE id = $1;
+    DELETE
+    FROM products
+    WHERE id=$1;
     `,
     [id]
   );
 };
 
 // ============================
-// Lock Product For Checkout
+// Checkout Lock
 // ============================
 export const lockProductForUpdate = async (
   client,
@@ -263,9 +268,12 @@ export const lockProductForUpdate = async (
 ) => {
   const result = await client.query(
     `
-    SELECT id, name, stock
+    SELECT
+      id,
+      name,
+      stock
     FROM products
-    WHERE id = $1
+    WHERE id=$1
     FOR UPDATE;
     `,
     [product_id]
@@ -275,7 +283,7 @@ export const lockProductForUpdate = async (
 };
 
 // ============================
-// Reduce Product Stock
+// Reduce Stock
 // ============================
 export const decreaseProductStock = async (
   client,
@@ -285,23 +293,26 @@ export const decreaseProductStock = async (
   await client.query(
     `
     UPDATE products
-    SET stock = stock - $1
-    WHERE id = $2;
+    SET stock=stock-$1
+    WHERE id=$2;
     `,
     [quantity, product_id]
   );
 };
 
 // ============================
-// Get Product By ID and Seller
+// Product By Seller
 // ============================
-export const getProductByIdAndSeller = async (id, sellerId) => {
+export const getProductByIdAndSeller = async (
+  id,
+  sellerId
+) => {
   const result = await pool.query(
     `
     SELECT *
     FROM products
-    WHERE id = $1
-    AND seller_id = $2;
+    WHERE id=$1
+    AND seller_id=$2;
     `,
     [id, sellerId]
   );
@@ -312,15 +323,60 @@ export const getProductByIdAndSeller = async (id, sellerId) => {
 // ============================
 // Delete Product By Seller
 // ============================
-export const deleteProductBySeller = async (id, sellerId) => {
+export const deleteProductBySeller = async (
+  id,
+  sellerId
+) => {
   const result = await pool.query(
     `
-    DELETE FROM products
-    WHERE id = $1
-    AND seller_id = $2
+    DELETE
+    FROM products
+    WHERE id=$1
+    AND seller_id=$2
     RETURNING *;
     `,
     [id, sellerId]
+  );
+
+  return result.rows[0];
+};
+
+// ============================
+// Admin - Get All Products
+// ============================
+export const getAllProductsForAdmin = async () => {
+  const result = await pool.query(
+    `
+    SELECT
+      p.*,
+      u.name AS seller_name,
+      u.email AS seller_email
+
+    FROM products p
+
+    JOIN users u
+      ON p.seller_id = u.id
+
+    ORDER BY p.created_at DESC;
+    `
+  );
+
+  return result.rows;
+};
+
+// ============================
+// Admin - Delete Product
+// ============================
+export const deleteProductByAdmin = async (
+  id
+) => {
+  const result = await pool.query(
+    `
+    DELETE FROM products
+    WHERE id=$1
+    RETURNING *;
+    `,
+    [id]
   );
 
   return result.rows[0];

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   FaShoppingCart,
   FaHeart,
@@ -9,24 +9,14 @@ import {
 import useAuth from "../../hooks/useAuth";
 
 function Navbar() {
-  const navigate = useNavigate();
-
-  const {
-    isAuthenticated,
-    user,
-    logout,
-  } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  const { user, logout } = useAuth();
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
 
         {/* Logo */}
+
         <Link
           to="/"
           className="text-2xl font-bold text-blue-600"
@@ -34,7 +24,8 @@ function Navbar() {
           AI Shop
         </Link>
 
-        {/* Search Bar */}
+        {/* Search */}
+
         <div className="w-2/5">
           <input
             type="text"
@@ -44,62 +35,58 @@ function Navbar() {
         </div>
 
         {/* Navigation */}
+
         <div className="flex items-center gap-6">
 
-          <Link
-            to="/wishlist"
-            className="text-xl hover:text-red-500 transition"
-          >
+          <Link to="/wishlist">
             <FaHeart />
           </Link>
 
-          <Link
-            to="/cart"
-            className="text-xl hover:text-blue-500 transition"
-          >
+          <Link to="/cart">
             <FaShoppingCart />
           </Link>
 
-          {isAuthenticated ? (
+          {!user ? (
+            <Link to="/login">
+              <FaUserCircle />
+            </Link>
+          ) : (
             <>
-              <Link
-                to="/seller/dashboard"
-                className="font-medium hover:text-blue-600 transition"
-              >
-                Dashboard
-              </Link>
 
-              <div className="flex items-center gap-2">
-                <FaUserCircle className="text-2xl text-green-600" />
+              {/* Seller */}
 
-                <span className="font-medium">
-                  {user?.name}
-                </span>
-              </div>
+              {user.role === "seller" && (
+                <Link
+                  to="/seller/dashboard"
+                  className="font-semibold"
+                >
+                  Seller
+                </Link>
+              )}
+
+              {/* Admin */}
+
+              {user.role === "admin" && (
+                <Link
+                  to="/admin/dashboard"
+                  className="font-semibold text-red-600"
+                >
+                  Admin
+                </Link>
+              )}
+
+              <span className="font-semibold">
+                {user.name}
+              </span>
 
               <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 text-red-600 hover:text-red-700"
+                onClick={logout}
+                className="flex items-center gap-2 text-red-600"
               >
                 <FaSignOutAlt />
                 Logout
               </button>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                className="hover:text-green-600 transition"
-              >
-                Login
-              </Link>
 
-              <Link
-                to="/register"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-              >
-                Register
-              </Link>
             </>
           )}
 

@@ -1,16 +1,23 @@
-import pool from "../config/db.js";
 import bcrypt from "bcrypt";
+
 import generateToken from "../utils/generateToken.js";
 
-// ================= REGISTER =================
+import {
+  findUserByEmail,
+  createUser,
+  getAllUsers,
+  getUserById,
+  updateUserRole,
+  deleteUser,
+} from "../models/userModel.js";
 
+// ========================================
+// Register User
+// ========================================
 export const registerUser = async (req, res) => {
-  
-  console.log(req.body);
   try {
     const { name, email, password, phone } = req.body;
 
-    // Check required fields
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -18,35 +25,30 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    // Check existing user
-    const existingUser = await pool.query(
-      "SELECT * FROM users WHERE email=$1",
-      [email]
-    );
+    const existingUser = await findUserByEmail(email);
 
-    if (existingUser.rows.length > 0) {
+    if (existingUser) {
       return res.status(400).json({
         success: false,
         message: "User already exists",
       });
     }
 
-    // Encrypt password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert user
-    const newUser = await pool.query(
-      `INSERT INTO users(name,email,password,phone)
-       VALUES($1,$2,$3,$4)
-       RETURNING id,name,email,role`,
-      [name, email, hashedPassword, phone]
+    const user = await createUser(
+      name,
+      email,
+      hashedPassword,
+      "customer",
+      phone
     );
 
     res.status(201).json({
       success: true,
       message: "User registered successfully",
-      user: newUser.rows[0],
-      token: generateToken(newUser.rows[0].id),
+      user,
+      token: generateToken(user.id),
     });
 
   } catch (error) {
@@ -59,31 +61,26 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// ================= LOGIN =================
-
+// ========================================
+// Login User
+// ========================================
 export const loginUser = async (req, res) => {
-
   try {
-
     const { email, password } = req.body;
 
-    // Check user
-    const result = await pool.query(
-      "SELECT * FROM users WHERE email=$1",
-      [email]
-    );
+    const user = await findUserByEmail(email);
 
-    if (result.rows.length === 0) {
+    if (!user) {
       return res.status(400).json({
         success: false,
         message: "Invalid email or password",
       });
     }
 
-    const user = result.rows[0];
-
-    // Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!isMatch) {
       return res.status(400).json({
@@ -107,14 +104,109 @@ export const loginUser = async (req, res) => {
     });
 
   } catch (error) {
-
     console.error(error);
 
     res.status(500).json({
       success: false,
       message: "Login Failed",
     });
-
   }
+};
 
+// ========================================
+// Admin - Get All Users
+// ========================================
+export const fetchUsers = async (req, res) => {
+  try {
+    const users = await getAllUsers();
+
+    res.status(200).json({
+      success: true,
+      totalUsers: users.length,
+      users,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch users",
+    });
+  }
+};
+
+// ========================================
+// Admin - Update User Role
+// ========================================
+export const editUserRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+
+    if (!role) {
+      return res.status(400).json({
+        success: false,
+        message: "Role is required",
+      });
+    }
+
+    const existingUser = await getUserById(req.params.id);
+
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const user = await updateUserRole(
+      req.params.id,
+      role
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "User role updated successfully",
+      user,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to update user role",
+    });
+  }
+};
+
+// ========================================
+// Admin - Delete User
+// ========================================
+export const removeUser = async (req, res) => {
+  try {
+    const existingUser = await getUserById(req.params.id);
+
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    await deleteUser(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete user",
+    });
+  }
 };
