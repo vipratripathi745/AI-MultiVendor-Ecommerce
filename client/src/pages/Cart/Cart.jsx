@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import {
+  FaTrash,
+  FaMinus,
+  FaPlus,
+} from "react-icons/fa";
 
 import {
   getCart,
@@ -8,10 +13,11 @@ import {
   clearCart,
 } from "../../services/cartService";
 
+import CartSummary from "../../components/Cart/CartSummary";
+
 function Cart() {
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +29,6 @@ function Cart() {
       const response = await getCart();
 
       setCart(response.cart);
-
       setTotal(response.total);
     } catch (error) {
       console.log(error);
@@ -46,31 +51,35 @@ function Cart() {
       fetchCart();
     } catch (error) {
       toast.error(
-        error.response?.data?.message
+        error.response?.data?.message ||
+          "Failed to update cart"
       );
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      const response = await removeCartItem(id);
+      const response =
+        await removeCartItem(id);
 
       toast.success(response.message);
 
       fetchCart();
     } catch (error) {
       toast.error(
-        error.response?.data?.message
+        error.response?.data?.message ||
+          "Failed to remove item"
       );
     }
   };
 
   const handleClearCart = async () => {
-    const confirmDelete = window.confirm(
-      "Clear Cart?"
-    );
-
-    if (!confirmDelete) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to clear your cart?"
+      )
+    )
+      return;
 
     try {
       const response = await clearCart();
@@ -80,147 +89,169 @@ function Cart() {
       fetchCart();
     } catch (error) {
       toast.error(
-        error.response?.data?.message
+        error.response?.data?.message ||
+          "Failed to clear cart"
       );
     }
   };
 
   if (loading) {
     return (
-      <h2 className="text-center text-3xl mt-20">
+      <div className="text-center py-24 text-3xl font-bold">
         Loading Cart...
-      </h2>
+      </div>
     );
   }
 
   if (cart.length === 0) {
     return (
-      <div className="text-center py-20">
-        <h1 className="text-4xl font-bold">
-          Your Cart is Empty
+      <div className="min-h-[70vh] flex flex-col items-center justify-center">
+
+        <h1 className="text-5xl font-bold">
+
+          🛒 Your Cart is Empty
+
         </h1>
+
+        <p className="text-gray-500 mt-5 text-xl">
+
+          Add products to continue shopping.
+
+        </p>
+
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-10 px-6">
+    <div className="bg-gray-100 min-h-screen py-12">
 
-      <div className="flex justify-between items-center mb-10">
+      <div className="max-w-7xl mx-auto px-6">
 
-        <h1 className="text-4xl font-bold">
-          Shopping Cart
-        </h1>
+        <div className="flex justify-between items-center mb-10">
 
-        <button
-          onClick={handleClearCart}
-          className="bg-red-600 text-white px-6 py-3 rounded-lg"
-        >
-          Clear Cart
-        </button>
+          <h1 className="text-4xl font-bold">
 
-      </div>
+            Shopping Cart
 
-      <div className="space-y-6">
+          </h1>
 
-        {cart.map((item) => (
-
-          <div
-            key={item.id}
-            className="bg-white shadow rounded-xl p-5 flex items-center justify-between"
+          <button
+            onClick={handleClearCart}
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl transition"
           >
+            Clear Cart
+          </button>
 
-            <div className="flex items-center gap-5">
+        </div>
 
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-24 h-24 rounded-lg object-cover"
-              />
+        <div className="grid lg:grid-cols-3 gap-10">
 
-              <div>
+          {/* LEFT */}
 
-                <h2 className="text-xl font-bold">
-                  {item.name}
-                </h2>
+          <div className="lg:col-span-2 space-y-6">
 
-                <p>
-                  ₹{item.price}
-                </p>
+            {cart.map((item) => (
 
-                <p>
-                  Subtotal :
-                  ₹{item.subtotal}
-                </p>
+              <div
+                key={item.id}
+                className="bg-white rounded-2xl shadow-lg p-6 flex flex-col md:flex-row gap-6 items-center"
+              >
+
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-40 h-40 rounded-xl object-cover"
+                />
+
+                <div className="flex-1">
+
+                  <h2 className="text-2xl font-bold">
+
+                    {item.name}
+
+                  </h2>
+
+                  <p className="text-gray-500 mt-2">
+
+                    ₹{item.price}
+
+                  </p>
+
+                  <p className="mt-3 font-semibold text-blue-600">
+
+                    Subtotal : ₹{item.subtotal}
+
+                  </p>
+
+                </div>
+
+                {/* Quantity */}
+
+                <div className="flex flex-col items-center gap-4">
+
+                  <div className="flex items-center bg-gray-100 rounded-xl overflow-hidden">
+
+                    <button
+                      onClick={() =>
+                        handleQuantity(
+                          item.id,
+                          item.quantity - 1
+                        )
+                      }
+                      className="px-4 py-3 hover:bg-gray-200"
+                    >
+                      <FaMinus />
+                    </button>
+
+                    <span className="px-5 font-bold">
+
+                      {item.quantity}
+
+                    </span>
+
+                    <button
+                      onClick={() =>
+                        handleQuantity(
+                          item.id,
+                          item.quantity + 1
+                        )
+                      }
+                      className="px-4 py-3 hover:bg-gray-200"
+                    >
+                      <FaPlus />
+                    </button>
+
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      handleDelete(item.id)
+                    }
+                    className="flex items-center gap-2 text-red-600 hover:text-red-700 font-semibold"
+                  >
+
+                    <FaTrash />
+
+                    Remove
+
+                  </button>
+
+                </div>
 
               </div>
 
-            </div>
-
-            <div className="flex items-center gap-4">
-
-              <button
-                onClick={() =>
-                  handleQuantity(
-                    item.id,
-                    item.quantity - 1
-                  )
-                }
-                className="bg-gray-300 px-3 py-1 rounded"
-              >
-                -
-              </button>
-
-              <span className="text-xl">
-                {item.quantity}
-              </span>
-
-              <button
-                onClick={() =>
-                  handleQuantity(
-                    item.id,
-                    item.quantity + 1
-                  )
-                }
-                className="bg-gray-300 px-3 py-1 rounded"
-              >
-                +
-              </button>
-
-              <button
-                onClick={() =>
-                  handleDelete(item.id)
-                }
-                className="bg-red-600 text-white px-4 py-2 rounded"
-              >
-                Remove
-              </button>
-
-            </div>
+            ))}
 
           </div>
 
-        ))}
+          {/* RIGHT */}
+
+          <CartSummary total={total} />
+
+        </div>
 
       </div>
-
-      <div className="mt-10 bg-white shadow rounded-xl p-8 flex justify-between">
-
-        <h2 className="text-3xl font-bold">
-          Total
-        </h2>
-
-        <h2 className="text-3xl font-bold text-blue-600">
-          ₹{total}
-        </h2>
-
-      </div>
-
-      <button
-        className="mt-8 w-full bg-green-600 text-white py-4 rounded-xl text-xl"
-      >
-        Proceed To Checkout
-      </button>
 
     </div>
   );

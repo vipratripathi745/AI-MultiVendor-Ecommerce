@@ -91,17 +91,21 @@ export const checkoutService = async (
       );
     }
 
-    await clearCart(user_id);
+    await clearCart(client, user_id);
 
     await client.query("COMMIT");
 
     return order;
   } catch (error) {
-    await client.query("ROLLBACK");
-    throw error;
-  } finally {
-    client.release();
-  }
+      console.log("========== CHECKOUT ERROR ==========");
+      console.log(error);
+      console.log(error.stack);
+
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
 };
 
 // ========================================

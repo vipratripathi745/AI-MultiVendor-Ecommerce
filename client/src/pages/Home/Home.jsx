@@ -1,4 +1,11 @@
 import { useEffect, useState } from "react";
+import {
+  FaShippingFast,
+  FaShieldAlt,
+  FaUndoAlt,
+  FaHeadset,
+} from "react-icons/fa";
+
 import ProductCard from "../../components/ProductCard/ProductCard";
 import { getAllProducts } from "../../services/productService";
 
@@ -13,93 +20,205 @@ function Home() {
     try {
       const data = await getAllProducts();
 
-      console.log(data);
-
       if (data.success) {
         setProducts(data.products);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
+  const categories = [
+    "Electronics",
+    "Fashion",
+    "Shoes",
+    "Accessories",
+    "Laptop",
+    "Mobile",
+  ];
+
   return (
-    <>
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-        <div className="max-w-7xl mx-auto px-6 py-24 flex flex-col items-center text-center">
+    <div className="bg-gray-100 min-h-screen">
 
-          <h1 className="text-5xl font-bold mb-6">
-            Welcome to AI Shop
-          </h1>
+      {/* HERO */}
 
-          <p className="text-xl mb-8 max-w-2xl">
-            Discover thousands of products at the best prices.
-            Fast delivery, secure payments and amazing offers.
-          </p>
+      <section className="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 text-white">
 
-          <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
-            Shop Now
+        <div className="max-w-7xl mx-auto px-6 py-24 grid lg:grid-cols-2 items-center gap-10">
+
+          <div>
+
+            <span className="bg-white text-blue-700 px-4 py-2 rounded-full font-semibold">
+              🔥 Biggest Sale of the Year
+            </span>
+
+            <h1 className="text-6xl font-extrabold mt-8 leading-tight">
+
+              Shop Smarter
+
+              <br />
+
+              Live Better
+
+            </h1>
+
+            <p className="mt-8 text-xl text-blue-100">
+
+              Buy premium electronics, fashion,
+              accessories and much more with
+              exclusive discounts.
+
+            </p>
+
+            <button className="mt-10 bg-white text-blue-700 px-8 py-4 rounded-xl font-bold hover:scale-105 transition">
+
+              Shop Now
+
+            </button>
+
+          </div>
+
+          <div className="hidden lg:flex justify-center">
+
+            <img
+              src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800"
+              alt="Hero"
+              className="rounded-3xl shadow-2xl"
+            />
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* CATEGORY */}
+
+      <section className="max-w-7xl mx-auto py-16 px-6">
+
+        <h2 className="text-4xl font-bold mb-10 text-center">
+
+          Shop by Category
+
+        </h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+
+          {categories.map((item) => (
+
+            <div
+              key={item}
+              className="bg-white rounded-2xl shadow-md p-8 text-center font-semibold hover:bg-blue-600 hover:text-white hover:-translate-y-2 transition duration-300 cursor-pointer"
+            >
+
+              {item}
+
+            </div>
+
+          ))}
+
+        </div>
+
+      </section>
+
+      {/* FEATURES */}
+
+      <section className="max-w-7xl mx-auto px-6 py-12">
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+
+            <FaShippingFast className="text-5xl mx-auto text-blue-600" />
+
+            <h3 className="font-bold text-xl mt-5">
+              Free Shipping
+            </h3>
+
+            <p className="mt-2 text-gray-500">
+              On all orders above ₹999
+            </p>
+
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+
+            <FaShieldAlt className="text-5xl mx-auto text-green-600" />
+
+            <h3 className="font-bold text-xl mt-5">
+              Secure Payment
+            </h3>
+
+            <p className="mt-2 text-gray-500">
+              100% safe transactions
+            </p>
+
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+
+            <FaUndoAlt className="text-5xl mx-auto text-red-500" />
+
+            <h3 className="font-bold text-xl mt-5">
+              Easy Returns
+            </h3>
+
+            <p className="mt-2 text-gray-500">
+              7 Days return policy
+            </p>
+
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+
+            <FaHeadset className="text-5xl mx-auto text-purple-600" />
+
+            <h3 className="font-bold text-xl mt-5">
+              24×7 Support
+            </h3>
+
+            <p className="mt-2 text-gray-500">
+              Always here to help
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* PRODUCTS */}
+
+      <section className="max-w-7xl mx-auto px-6 py-16">
+
+        <div className="flex justify-between items-center mb-10">
+
+          <h2 className="text-4xl font-bold">
+            Featured Products
+          </h2>
+
+          <button className="text-blue-600 font-semibold">
+            View All →
           </button>
 
         </div>
-      </section>
 
-      {/* Categories */}
-      <section className="max-w-7xl mx-auto px-6 py-16">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
 
-        <h2 className="text-3xl font-bold mb-8">
-          Shop by Category
-        </h2>
+          {products.map((product) => (
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <ProductCard
+              key={product.id}
+              product={product}
+            />
 
-          <div className="bg-white shadow rounded-xl p-8 text-center hover:shadow-lg transition cursor-pointer">
-            Electronics
-          </div>
-
-          <div className="bg-white shadow rounded-xl p-8 text-center hover:shadow-lg transition cursor-pointer">
-            Fashion
-          </div>
-
-          <div className="bg-white shadow rounded-xl p-8 text-center hover:shadow-lg transition cursor-pointer">
-            Shoes
-          </div>
-
-          <div className="bg-white shadow rounded-xl p-8 text-center hover:shadow-lg transition cursor-pointer">
-            Accessories
-          </div>
+          ))}
 
         </div>
 
       </section>
 
-      {/* Featured Products */}
-      <section className="max-w-7xl mx-auto px-6 pb-20">
-
-        <h2 className="text-3xl font-bold mb-8">
-          Featured Products
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-
-          {products.length > 0 ? (
-            products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-              />
-            ))
-          ) : (
-            <p className="text-gray-500 text-lg">
-              No products found.
-            </p>
-          )}
-
-        </div>
-
-      </section>
-    </>
+    </div>
   );
 }
 
