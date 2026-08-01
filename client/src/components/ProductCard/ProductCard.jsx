@@ -144,16 +144,26 @@ function ProductCard({ product }) {
 
         <div className="flex items-center mt-4">
 
-          {[1, 2, 3, 4, 5].map((star) => (
+        {[1, 2, 3, 4, 5].map((star) => (
             <FaStar
-              key={star}
-              className="text-yellow-400"
+            key={star}
+            className={
+                star <= Math.round(Number(product.average_rating))
+                ? "text-yellow-400"
+                : "text-gray-300"
+            }
             />
-          ))}
+        ))}
 
-          <span className="ml-2 text-gray-500 text-sm">
-            (5.0)
-          </span>
+        <span className="ml-2 text-gray-600 text-sm">
+
+            {Number(product.average_rating).toFixed(1)}
+
+            {" "}
+
+            ({product.total_reviews} Reviews)
+
+        </span>
 
         </div>
 

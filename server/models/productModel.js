@@ -48,6 +48,7 @@ export const addProduct = async (
 // ============================
 // Get All Products
 // ============================
+
 export const getAllProducts = async (
   page = 1,
   limit = 10,
@@ -61,8 +62,13 @@ export const getAllProducts = async (
   const offset = (page - 1) * limit;
 
   let query = `
-    SELECT *
-    FROM products
+    SELECT
+      p.*,
+      COALESCE(AVG(r.rating), 0) AS average_rating,
+      COUNT(r.id) AS total_reviews
+    FROM products p
+    LEFT JOIN reviews r
+      ON p.id = r.product_id
     WHERE 1=1
   `;
 
@@ -79,9 +85,9 @@ export const getAllProducts = async (
   if (search) {
     query += `
       AND (
-        name ILIKE $${index}
-        OR brand ILIKE $${index}
-        OR category ILIKE $${index}
+        p.name ILIKE $${index}
+        OR p.brand ILIKE $${index}
+        OR p.category ILIKE $${index}
       )
     `;
 
@@ -99,7 +105,7 @@ export const getAllProducts = async (
 
   // Category
   if (category) {
-    query += ` AND category ILIKE $${index}`;
+    query += ` AND p.category ILIKE $${index}`;
     countQuery += ` AND category ILIKE $${index}`;
 
     values.push(category);
@@ -108,7 +114,7 @@ export const getAllProducts = async (
 
   // Brand
   if (brand) {
-    query += ` AND brand ILIKE $${index}`;
+    query += ` AND p.brand ILIKE $${index}`;
     countQuery += ` AND brand ILIKE $${index}`;
 
     values.push(brand);
@@ -117,7 +123,7 @@ export const getAllProducts = async (
 
   // Min Price
   if (minPrice) {
-    query += ` AND price >= $${index}`;
+    query += ` AND p.price >= $${index}`;
     countQuery += ` AND price >= $${index}`;
 
     values.push(Number(minPrice));
@@ -126,28 +132,32 @@ export const getAllProducts = async (
 
   // Max Price
   if (maxPrice) {
-    query += ` AND price <= $${index}`;
+    query += ` AND p.price <= $${index}`;
     countQuery += ` AND price <= $${index}`;
 
     values.push(Number(maxPrice));
     index++;
   }
 
+  query += `
+    GROUP BY p.id
+  `;
+
   switch (sort) {
     case "price_asc":
-      query += ` ORDER BY price ASC`;
+      query += ` ORDER BY p.price ASC`;
       break;
 
     case "price_desc":
-      query += ` ORDER BY price DESC`;
+      query += ` ORDER BY p.price DESC`;
       break;
 
     case "oldest":
-      query += ` ORDER BY created_at ASC`;
+      query += ` ORDER BY p.created_at ASC`;
       break;
 
     default:
-      query += ` ORDER BY created_at DESC`;
+      query += ` ORDER BY p.created_at DESC`;
   }
 
   query += `
@@ -161,24 +171,43 @@ export const getAllProducts = async (
     offset,
   ]);
 
-  const countResult = await pool.query(countQuery, values);
+  const countResult = await pool.query(
+    countQuery,
+    values
+  );
 
   return {
     products: productsResult.rows,
-    totalProducts: Number(countResult.rows[0].total),
+    totalProducts: Number(
+      countResult.rows[0].total
+    ),
   };
 };
+
+
 
 // ============================
 // Seller Products
 // ============================
-export const getSellerProducts = async (sellerId) => {
+export const getSellerProducts = async (
+  sellerId
+) => {
   const result = await pool.query(
     `
-    SELECT *
-    FROM products
-    WHERE seller_id=$1
-    ORDER BY created_at DESC;
+    SELECT
+      p.*,
+      COALESCE(AVG(r.rating),0) AS average_rating,
+      COUNT(r.id) AS total_reviews
+    FROM products p
+
+    LEFT JOIN reviews r
+      ON p.id = r.product_id
+
+    WHERE p.seller_id = $1
+
+    GROUP BY p.id
+
+    ORDER BY p.created_at DESC;
     `,
     [sellerId]
   );
@@ -192,9 +221,19 @@ export const getSellerProducts = async (sellerId) => {
 export const getProductById = async (id) => {
   const result = await pool.query(
     `
-    SELECT *
-    FROM products
-    WHERE id=$1;
+    SELECT
+      p.*,
+      COALESCE(AVG(r.rating),0) AS average_rating,
+      COUNT(r.id) AS total_reviews
+
+    FROM products p
+
+    LEFT JOIN reviews r
+      ON p.id = r.product_id
+
+    WHERE p.id = $1
+
+    GROUP BY p.id;
     `,
     [id]
   );
@@ -309,10 +348,21 @@ export const getProductByIdAndSeller = async (
 ) => {
   const result = await pool.query(
     `
-    SELECT *
-    FROM products
-    WHERE id=$1
-    AND seller_id=$2;
+    SELECT
+      p.*,
+      COALESCE(AVG(r.rating),0) AS average_rating,
+      COUNT(r.id) AS total_reviews
+
+    FROM products p
+
+    LEFT JOIN reviews r
+      ON p.id = r.product_id
+
+    WHERE
+      p.id = $1
+      AND p.seller_id = $2
+
+    GROUP BY p.id;
     `,
     [id, sellerId]
   );
@@ -344,25 +394,37 @@ export const deleteProductBySeller = async (
 // ============================
 // Admin - Get All Products
 // ============================
-export const getAllProductsForAdmin = async () => {
-  const result = await pool.query(
-    `
-    SELECT
-      p.*,
-      u.name AS seller_name,
-      u.email AS seller_email
+export const getAllProductsForAdmin =
+  async () => {
+    const result = await pool.query(
+      `
+      SELECT
+        p.*,
+        COALESCE(AVG(r.rating),0) AS average_rating,
+        COUNT(r.id) AS total_reviews,
+        u.name AS seller_name,
+        u.email AS seller_email
 
-    FROM products p
+      FROM products p
 
-    JOIN users u
-      ON p.seller_id = u.id
+      JOIN users u
+        ON p.seller_id = u.id
 
-    ORDER BY p.created_at DESC;
-    `
-  );
+      LEFT JOIN reviews r
+        ON p.id = r.product_id
 
-  return result.rows;
-};
+      GROUP BY
+        p.id,
+        u.id,
+        u.name,
+        u.email
+
+      ORDER BY p.created_at DESC;
+      `
+    );
+
+    return result.rows;
+  };
 
 // ============================
 // Admin - Delete Product

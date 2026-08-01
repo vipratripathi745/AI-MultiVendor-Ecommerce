@@ -46,26 +46,6 @@ router.get(
   fetchSellerProducts
 );
 
-// ======================================
-// Admin Routes
-// ======================================
-
-// Get All Products
-router.get(
-  "/admin/all",
-  protect,
-  verifyAdmin,
-  fetchAdminProducts
-);
-
-// Delete Any Product
-router.delete(
-  "/admin/:id",
-  protect,
-  verifyAdmin,
-  removeAdminProduct
-);
-
 // Update Product
 router.put(
   "/:id",
@@ -80,6 +60,7 @@ router.delete(
   protect,
   removeProduct
 );
+
 // ======================================
 // Admin Routes
 // ======================================
@@ -96,9 +77,8 @@ router.get(
 router.delete(
   "/admin/:id",
   protect,
-  verifyAdmin,
+ verifyAdmin,
   removeAdminProduct
 );
-
 
 export default router;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
@@ -10,6 +10,8 @@ import {
 } from "react-icons/fa";
 
 import { checkout } from "../../services/orderService";
+import { getCart } from "../../services/cartService";
+import EmptyState from "../../components/Common/EmptyState";
 
 function Checkout() {
   const navigate = useNavigate();
@@ -23,15 +25,34 @@ function Checkout() {
   const [loading, setLoading] =
     useState(false);
 
-  const subtotal = 199999;
-  const shipping = 0;
-  const discount = 10000;
+  const [cart, setCart] = useState([]);
+  const [total, setTotal] = useState(0);
 
-  const total =
-    subtotal - discount + shipping;
+  useEffect(() => {
+    fetchCart();
+  }, []);
+
+  const fetchCart = async () => {
+    try {
+      const response = await getCart();
+
+      setCart(response.cart || []);
+      setTotal(Number(response.total) || 0);
+    } catch (error) {
+      console.error(error);
+
+      toast.error("Failed to load cart");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!shippingAddress.trim()) {
+      return toast.error(
+        "Shipping address is required."
+      );
+    }
 
     try {
       setLoading(true);
@@ -54,15 +75,24 @@ function Checkout() {
     }
   };
 
+  if (cart.length === 0) {
+    return (
+      <EmptyState
+        title="Your Cart is Empty"
+        description="Add some products before checkout."
+        buttonText="Continue Shopping"
+        buttonLink="/"
+      />
+    );
+  }
+
   return (
     <div className="bg-gray-100 min-h-screen py-12">
 
       <div className="max-w-7xl mx-auto px-6">
 
         <h1 className="text-5xl font-bold mb-10">
-
           Checkout
-
         </h1>
 
         <form
@@ -70,7 +100,7 @@ function Checkout() {
           className="grid lg:grid-cols-3 gap-10"
         >
 
-          {/* LEFT */}
+          {/* Left */}
 
           <div className="lg:col-span-2 space-y-8">
 
@@ -80,12 +110,10 @@ function Checkout() {
 
               <div className="flex items-center gap-3 mb-6">
 
-                <FaMapMarkerAlt className="text-blue-600 text-2xl"/>
+                <FaMapMarkerAlt className="text-blue-600 text-2xl" />
 
                 <h2 className="text-2xl font-bold">
-
                   Shipping Address
-
                 </h2>
 
               </div>
@@ -94,7 +122,7 @@ function Checkout() {
                 rows="6"
                 required
                 value={shippingAddress}
-                onChange={(e)=>
+                onChange={(e) =>
                   setShippingAddress(e.target.value)
                 }
                 placeholder="Enter complete delivery address..."
@@ -109,12 +137,10 @@ function Checkout() {
 
               <div className="flex items-center gap-3 mb-6">
 
-                <FaCreditCard className="text-green-600 text-2xl"/>
+                <FaCreditCard className="text-green-600 text-2xl" />
 
                 <h2 className="text-2xl font-bold">
-
                   Payment Method
-
                 </h2>
 
               </div>
@@ -125,13 +151,13 @@ function Checkout() {
 
                   <input
                     type="radio"
-                    checked={paymentMethod==="COD"}
-                    onChange={()=>
+                    checked={paymentMethod === "COD"}
+                    onChange={() =>
                       setPaymentMethod("COD")
                     }
                   />
 
-                  <FaMoneyBillWave className="text-green-600 text-2xl"/>
+                  <FaMoneyBillWave className="text-green-600 text-2xl" />
 
                   Cash On Delivery
 
@@ -141,13 +167,15 @@ function Checkout() {
 
                   <input
                     type="radio"
-                    checked={paymentMethod==="ONLINE"}
-                    onChange={()=>
+                    checked={
+                      paymentMethod === "ONLINE"
+                    }
+                    onChange={() =>
                       setPaymentMethod("ONLINE")
                     }
                   />
 
-                  <FaCreditCard className="text-blue-600 text-2xl"/>
+                  <FaCreditCard className="text-blue-600 text-2xl" />
 
                   Online Payment
 
@@ -159,37 +187,23 @@ function Checkout() {
 
           </div>
 
-          {/* RIGHT */}
+          {/* Right */}
 
           <div>
 
             <div className="bg-white rounded-3xl shadow-lg p-8 sticky top-24">
 
               <h2 className="text-3xl font-bold mb-8">
-
                 Order Summary
-
               </h2>
 
               <div className="space-y-5">
 
                 <div className="flex justify-between">
 
-                  <span>Subtotal</span>
+                  <span>Total Items</span>
 
-                  <span>₹{subtotal}</span>
-
-                </div>
-
-                <div className="flex justify-between">
-
-                  <span>Discount</span>
-
-                  <span className="text-green-600">
-
-                    -₹{discount}
-
-                  </span>
+                  <span>{cart.length}</span>
 
                 </div>
 
@@ -198,36 +212,30 @@ function Checkout() {
                   <span>Shipping</span>
 
                   <span className="text-green-600">
-
                     FREE
-
                   </span>
 
                 </div>
 
-                <hr/>
+                <hr />
 
                 <div className="flex justify-between text-2xl font-bold">
 
                   <span>Total</span>
 
                   <span className="text-blue-600">
-
                     ₹{total}
-
                   </span>
 
                 </div>
 
               </div>
 
-              {/* Features */}
-
               <div className="mt-8 space-y-4">
 
                 <div className="flex gap-3 items-center">
 
-                  <FaTruck className="text-green-600"/>
+                  <FaTruck className="text-green-600" />
 
                   <span>Free Delivery</span>
 
@@ -235,7 +243,7 @@ function Checkout() {
 
                 <div className="flex gap-3 items-center">
 
-                  <FaLock className="text-blue-600"/>
+                  <FaLock className="text-blue-600" />
 
                   <span>100% Secure Checkout</span>
 
@@ -245,7 +253,7 @@ function Checkout() {
 
               <button
                 disabled={loading}
-                className="w-full mt-10 bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl text-xl font-bold transition"
+                className="w-full mt-10 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-4 rounded-xl text-xl font-bold transition"
               >
 
                 {loading

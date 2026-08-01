@@ -1,38 +1,28 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import {
   FaUsers,
   FaBoxOpen,
   FaShoppingCart,
   FaRupeeSign,
-  FaClock,
-  FaCog,
-  FaTruck,
-  FaCheckCircle,
-  FaTimesCircle,
 } from "react-icons/fa";
 
-import { getDashboard } from "../../services/dashboardService";
-
-import StatCard from "../../components/Admin/StatCard";
-import RecentOrders from "../../components/Admin/RecentOrders";
-import RecentUsers from "../../components/Admin/RecentUsers";
+import Sidebar from "../../components/Admin/Sidebar";
+import { getAdminAnalytics } from "../../services/analyticsService";
 
 function Dashboard() {
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] =useState(true);
 
   useEffect(() => {
-    fetchDashboard();
+    fetchAnalytics();
   }, []);
 
-  const fetchDashboard = async () => {
+  const fetchAnalytics = async () => {
     try {
-      const response = await getDashboard();
-      setStats(response.stats);
+      const response = await getAdminAnalytics();
+      setAnalytics(response.analytics);
     } catch (error) {
       console.log(error);
-      toast.error("Failed to load dashboard");
     } finally {
       setLoading(false);
     }
@@ -40,141 +30,192 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div className="text-center py-24 text-3xl font-bold">
+      <div className="flex justify-center items-center min-h-screen text-3xl font-bold">
         Loading Dashboard...
       </div>
     );
   }
 
+  const dashboard = analytics?.dashboard || {};
+
   return (
-    <div className="bg-gray-100 min-h-screen py-10">
+    <div className="flex bg-gray-100 min-h-screen">
 
-      <div className="max-w-7xl mx-auto px-6">
+      <Sidebar />
 
-        {/* Header */}
+      <div className="flex-1 p-8">
 
-        <div className="mb-10">
+        <h1 className="text-5xl font-bold mb-10">
+          Admin Dashboard
+        </h1>
 
-          <h1 className="text-5xl font-bold">
-            Admin Dashboard
-          </h1>
-
-          <p className="text-gray-500 mt-3 text-lg">
-            Monitor users, products, orders and business performance.
-          </p>
-
-        </div>
-
-        {/* Main Stats */}
+        {/* Statistics */}
 
         <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
 
-          <StatCard
-            title="Users"
-            value={stats.total_users}
-            color="bg-blue-600"
-            icon={<FaUsers />}
-          />
+          <div className="bg-white rounded-3xl shadow-lg p-6">
 
-          <StatCard
-            title="Products"
-            value={stats.total_products}
-            color="bg-green-600"
-            icon={<FaBoxOpen />}
-          />
+            <div className="flex justify-between">
 
-          <StatCard
-            title="Orders"
-            value={stats.total_orders}
-            color="bg-purple-600"
-            icon={<FaShoppingCart />}
-          />
+              <div>
 
-          <StatCard
-            title="Revenue"
-            value={`₹${stats.total_revenue}`}
-            color="bg-red-600"
-            icon={<FaRupeeSign />}
-          />
+                <p>Total Users</p>
+
+                <h2 className="text-4xl font-bold mt-3">
+                  {dashboard.total_users}
+                </h2>
+
+              </div>
+
+              <FaUsers className="text-5xl text-blue-600" />
+
+            </div>
+
+          </div>
+
+          <div className="bg-white rounded-3xl shadow-lg p-6">
+
+            <div className="flex justify-between">
+
+              <div>
+
+                <p>Total Products</p>
+
+                <h2 className="text-4xl font-bold mt-3">
+                  {dashboard.total_products}
+                </h2>
+
+              </div>
+
+              <FaBoxOpen className="text-5xl text-green-600" />
+
+            </div>
+
+          </div>
+
+          <div className="bg-white rounded-3xl shadow-lg p-6">
+
+            <div className="flex justify-between">
+
+              <div>
+
+                <p>Total Orders</p>
+
+                <h2 className="text-4xl font-bold mt-3">
+                  {dashboard.total_orders}
+                </h2>
+
+              </div>
+
+              <FaShoppingCart className="text-5xl text-orange-500" />
+
+            </div>
+
+          </div>
+
+          <div className="bg-white rounded-3xl shadow-lg p-6">
+
+            <div className="flex justify-between">
+
+              <div>
+
+                <p>Total Revenue</p>
+
+                <h2 className="text-4xl font-bold mt-3">
+                  ₹{dashboard.total_revenue}
+                </h2>
+
+              </div>
+
+              <FaRupeeSign className="text-5xl text-red-500" />
+
+            </div>
+
+          </div>
 
         </div>
 
-        {/* Order Status */}
+        {/* Top Products */}
 
-        <div className="mt-12">
+        <div className="mt-10 bg-white rounded-3xl shadow-lg p-8">
 
           <h2 className="text-3xl font-bold mb-6">
-            Order Status
+            Top Selling Products
           </h2>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {analytics?.topProducts?.length > 0 ? (
 
-            <StatCard
-              title="Pending"
-              value={stats.pending_orders}
-              color="bg-yellow-500"
-              icon={<FaClock />}
-            />
+            <div className="space-y-4">
 
-            <StatCard
-              title="Processing"
-              value={stats.processing_orders}
-              color="bg-blue-500"
-              icon={<FaCog />}
-            />
+              {analytics.topProducts.map((product,index)=>(
+                <div
+                  key={index}
+                  className="flex justify-between border-b pb-3"
+                >
 
-            <StatCard
-              title="Shipped"
-              value={stats.shipped_orders}
-              color="bg-indigo-500"
-              icon={<FaTruck />}
-            />
+                  <span>{product.name}</span>
 
-            <StatCard
-              title="Delivered"
-              value={stats.delivered_orders}
-              color="bg-green-600"
-              icon={<FaCheckCircle />}
-            />
+                  <span className="font-bold text-blue-600">
+                    {product.sold} Sold
+                  </span>
 
-            <StatCard
-              title="Cancelled"
-              value={stats.cancelled_orders}
-              color="bg-red-500"
-              icon={<FaTimesCircle />}
-            />
+                </div>
+              ))}
 
-          </div>
+            </div>
+
+          ) : (
+
+            <p>No Product Sales Yet.</p>
+
+          )}
 
         </div>
 
-        {/* Recent Data */}
+        {/* Recent Orders */}
 
-        <div className="grid lg:grid-cols-2 gap-8 mt-12">
+        <div className="mt-10 bg-white rounded-3xl shadow-lg p-8">
 
-          <div className="bg-white rounded-3xl shadow-lg p-6">
+          <h2 className="text-3xl font-bold mb-6">
+            Recent Orders
+          </h2>
 
-            <h2 className="text-2xl font-bold mb-6">
-              Recent Orders
-            </h2>
+          {analytics?.recentOrders?.length > 0 ? (
 
-            <RecentOrders
-              orders={stats.latestOrders}
-            />
+            <div className="space-y-4">
 
-          </div>
+              {analytics.recentOrders.map((order)=>(
+                <div
+                  key={order.id}
+                  className="flex justify-between border-b pb-3"
+                >
 
-          <div className="bg-white rounded-3xl shadow-lg p-6">
+                  <div>
 
-            <h2 className="text-2xl font-bold mb-6">
-              New Users
-            </h2>
+                    <h3 className="font-semibold">
+                      {order.name}
+                    </h3>
 
-            <RecentUsers
-              users={stats.latestUsers}
-            />
+                    <p className="text-gray-500">
+                      {order.status}
+                    </p>
 
-          </div>
+                  </div>
+
+                  <span className="font-bold text-green-600">
+                    ₹{order.total_amount}
+                  </span>
+
+                </div>
+              ))}
+
+            </div>
+
+          ) : (
+
+            <p>No Orders Found.</p>
+
+          )}
 
         </div>
 

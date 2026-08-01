@@ -137,20 +137,31 @@ function ProductDetails() {
 
             {/* Rating */}
 
-            <div className="flex items-center gap-2 mt-6">
+            <div className="flex items-center gap-3 mt-6">
 
-              <div className="flex text-yellow-400">
+              <div className="flex">
 
-                <FaStar />
-                <FaStar />
-                <FaStar />
-                <FaStar />
-                <FaStar />
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <FaStar
+                    key={star}
+                    className={
+                      star <= Math.round(Number(product.average_rating || 0))
+                        ? "text-yellow-400"
+                        : "text-gray-300"
+                    }
+                  />
+                ))}
 
               </div>
 
-              <span className="text-gray-600">
-                (5.0 Rating)
+              <span className="text-gray-600 font-medium">
+
+                {Number(product.average_rating || 0).toFixed(1)}
+
+                {" "}
+
+                ({product.total_reviews || 0} Reviews)
+
               </span>
 
             </div>

@@ -1,11 +1,22 @@
 import api from "./api";
 
 // ==========================================
-// Get Admin Analytics
+// Admin Analytics
 // ==========================================
 export const getAdminAnalytics = async () => {
   const response = await api.get(
     "/analytics/admin"
+  );
+
+  return response.data;
+};
+
+// ==========================================
+// Seller Analytics
+// ==========================================
+export const getSellerAnalytics = async () => {
+  const response = await api.get(
+    "/analytics/seller"
   );
 
   return response.data;

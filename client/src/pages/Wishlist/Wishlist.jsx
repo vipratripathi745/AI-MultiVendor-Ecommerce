@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
-  FaHeart,
   FaShoppingCart,
   FaTrash,
   FaStar,
@@ -13,6 +12,7 @@ import {
 } from "../../services/wishlistService";
 
 import { addToCart } from "../../services/cartService";
+
 import EmptyState from "../../components/Common/EmptyState";
 
 function Wishlist() {
@@ -26,9 +26,11 @@ function Wishlist() {
   const fetchWishlist = async () => {
     try {
       const response = await getWishlist();
+
       setWishlist(response.wishlist);
     } catch (error) {
       console.log(error);
+
       toast.error("Failed to load wishlist");
     } finally {
       setLoading(false);
@@ -37,7 +39,8 @@ function Wishlist() {
 
   const handleRemove = async (productId) => {
     try {
-      const response = await removeWishlistItem(productId);
+      const response =
+        await removeWishlistItem(productId);
 
       toast.success(response.message);
 
@@ -54,15 +57,25 @@ function Wishlist() {
     }
   };
 
-  const handleMoveToCart = async (productId) => {
+  const handleMoveToCart = async (
+    productId
+  ) => {
     try {
       await addToCart(productId, 1);
 
-      toast.success("Added to cart");
+      await removeWishlistItem(productId);
+
+      setWishlist((prev) =>
+        prev.filter(
+          (item) => item.product_id !== productId
+        )
+      );
+
+      toast.success("Product moved to cart");
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
-          "Failed to add to cart"
+          "Failed to move product"
       );
     }
   };
@@ -132,16 +145,38 @@ function Wishlist() {
 
                 </h2>
 
-                <div className="flex items-center gap-1 mt-3 text-yellow-400">
+                {/* Rating */}
 
-                  <FaStar />
-                  <FaStar />
-                  <FaStar />
-                  <FaStar />
-                  <FaStar />
+                <div className="flex items-center gap-1 mt-3">
+
+                  {[1, 2, 3, 4, 5].map((star) => (
+
+                    <FaStar
+                      key={star}
+                      className={
+                        star <=
+                        Math.round(
+                          Number(
+                            item.average_rating || 0
+                          )
+                        )
+                          ? "text-yellow-400"
+                          : "text-gray-300"
+                      }
+                    />
+
+                  ))}
 
                   <span className="text-gray-600 ml-2">
-                    5.0
+
+                    {Number(
+                      item.average_rating || 0
+                    ).toFixed(1)}
+
+                    {" "}
+
+                    ({item.total_reviews || 0})
+
                   </span>
 
                 </div>
@@ -156,7 +191,9 @@ function Wishlist() {
 
                   <button
                     onClick={() =>
-                      handleMoveToCart(item.product_id)
+                      handleMoveToCart(
+                        item.product_id
+                      )
                     }
                     className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold flex justify-center items-center gap-2 transition"
                   >
@@ -169,7 +206,9 @@ function Wishlist() {
 
                   <button
                     onClick={() =>
-                      handleRemove(item.product_id)
+                      handleRemove(
+                        item.product_id
+                      )
                     }
                     className="bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-semibold flex justify-center items-center gap-2 transition"
                   >

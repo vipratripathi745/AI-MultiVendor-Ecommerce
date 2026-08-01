@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-
 import {
   FaTrash,
   FaMinus,
@@ -20,7 +19,9 @@ import EmptyState from "../../components/Common/EmptyState";
 function Cart() {
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
+
   const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState(null);
 
   useEffect(() => {
     fetchCart();
@@ -28,12 +29,14 @@ function Cart() {
 
   const fetchCart = async () => {
     try {
+      setLoading(true);
+
       const response = await getCart();
 
-      setCart(response.cart);
-      setTotal(response.total);
+      setCart(response.cart || []);
+      setTotal(Number(response.total) || 0);
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       toast.error("Failed to load cart");
     } finally {
@@ -45,17 +48,21 @@ function Cart() {
     id,
     quantity
   ) => {
-    if (quantity <= 0) return;
+    if (quantity < 1) return;
 
     try {
+      setUpdatingId(id);
+
       await updateCart(id, quantity);
 
-      fetchCart();
+      await fetchCart();
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
           "Failed to update cart"
       );
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -66,7 +73,7 @@ function Cart() {
 
       toast.success(response.message);
 
-      fetchCart();
+      await fetchCart();
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
@@ -88,7 +95,8 @@ function Cart() {
 
       toast.success(response.message);
 
-      fetchCart();
+      setCart([]);
+      setTotal(0);
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
@@ -109,7 +117,7 @@ function Cart() {
     return (
       <EmptyState
         title="Your Cart is Empty"
-        description="Looks like you haven't added any products to your cart yet."
+        description="Looks like you haven't added any products yet."
         buttonText="Continue Shopping"
         buttonLink="/"
       />
@@ -124,9 +132,7 @@ function Cart() {
         <div className="flex justify-between items-center mb-10">
 
           <h1 className="text-4xl font-bold">
-
             Shopping Cart
-
           </h1>
 
           <button
@@ -140,7 +146,7 @@ function Cart() {
 
         <div className="grid lg:grid-cols-3 gap-10">
 
-          {/* LEFT */}
+          {/* Left */}
 
           <div className="lg:col-span-2 space-y-6">
 
@@ -160,21 +166,15 @@ function Cart() {
                 <div className="flex-1">
 
                   <h2 className="text-2xl font-bold">
-
                     {item.name}
-
                   </h2>
 
                   <p className="text-gray-500 mt-2">
-
                     ₹{item.price}
-
                   </p>
 
                   <p className="mt-3 font-semibold text-blue-600">
-
                     Subtotal : ₹{item.subtotal}
-
                   </p>
 
                 </div>
@@ -186,31 +186,31 @@ function Cart() {
                   <div className="flex items-center bg-gray-100 rounded-xl overflow-hidden">
 
                     <button
+                      disabled={updatingId === item.id}
                       onClick={() =>
                         handleQuantity(
                           item.id,
                           item.quantity - 1
                         )
                       }
-                      className="px-4 py-3 hover:bg-gray-200"
+                      className="px-4 py-3 hover:bg-gray-200 disabled:opacity-50"
                     >
                       <FaMinus />
                     </button>
 
                     <span className="px-5 font-bold">
-
                       {item.quantity}
-
                     </span>
 
                     <button
+                      disabled={updatingId === item.id}
                       onClick={() =>
                         handleQuantity(
                           item.id,
                           item.quantity + 1
                         )
                       }
-                      className="px-4 py-3 hover:bg-gray-200"
+                      className="px-4 py-3 hover:bg-gray-200 disabled:opacity-50"
                     >
                       <FaPlus />
                     </button>
@@ -238,7 +238,7 @@ function Cart() {
 
           </div>
 
-          {/* RIGHT */}
+          {/* Right */}
 
           <CartSummary total={total} />
 

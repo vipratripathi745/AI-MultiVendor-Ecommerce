@@ -14,38 +14,31 @@ import {
 
 function Reviews({ productId }) {
   const [reviews, setReviews] = useState([]);
-  const [averageRating, setAverageRating] =
-    useState(0);
-  const [totalReviews, setTotalReviews] =
-    useState(0);
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const [saving, setSaving] =
-    useState(false);
-
-  const [editingReview, setEditingReview] =
-    useState(null);
+  const [editingReview, setEditingReview] = useState(null);
 
   useEffect(() => {
-    fetchReviews();
+    if (productId) {
+      fetchReviews();
+    }
   }, [productId]);
 
   const fetchReviews = async () => {
     try {
       setLoading(true);
 
-      const response =
-        await getProductReviews(productId);
+      const response = await getProductReviews(productId);
 
-      setReviews(response.reviews);
-      setAverageRating(response.averageRating);
-      setTotalReviews(response.totalReviews);
-
+      setReviews(response.reviews || []);
+      setAverageRating(response.averageRating || 0);
+      setTotalReviews(response.totalReviews || 0);
     } catch (error) {
-      console.log(error);
-
+      console.error(error);
       toast.error("Failed to load reviews");
     } finally {
       setLoading(false);
@@ -57,27 +50,23 @@ function Reviews({ productId }) {
       setSaving(true);
 
       if (editingReview) {
-        const response =
-          await updateReview(
-            editingReview.id,
-            data
-          );
+        const response = await updateReview(
+          editingReview.id,
+          data
+        );
 
         toast.success(response.message);
-
         setEditingReview(null);
       } else {
-        const response =
-          await addReview({
-            product_id: productId,
-            ...data,
-          });
+        const response = await addReview({
+          product_id: productId,
+          ...data,
+        });
 
         toast.success(response.message);
       }
 
-      fetchReviews();
-
+      await fetchReviews();
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
@@ -89,21 +78,18 @@ function Reviews({ productId }) {
   };
 
   const handleDelete = async (id) => {
-    if (
-      !window.confirm(
-        "Delete this review?"
-      )
-    )
-      return;
+    if (!window.confirm("Delete this review?")) return;
 
     try {
-      const response =
-        await deleteReview(id);
+      const response = await deleteReview(id);
 
       toast.success(response.message);
 
-      fetchReviews();
+      if (editingReview?.id === id) {
+        setEditingReview(null);
+      }
 
+      await fetchReviews();
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
@@ -130,7 +116,6 @@ function Reviews({ productId }) {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
 
           <div>
-
             <h2 className="text-3xl font-bold">
               Customer Reviews
             </h2>
@@ -139,7 +124,6 @@ function Reviews({ productId }) {
               {totalReviews} Review
               {totalReviews !== 1 && "s"}
             </p>
-
           </div>
 
           <div className="flex items-center gap-3 mt-5 md:mt-0">
@@ -147,11 +131,7 @@ function Reviews({ productId }) {
             <FaStar className="text-yellow-400 text-3xl" />
 
             <span className="text-3xl font-bold">
-
-              {Number(
-                averageRating
-              ).toFixed(1)}
-
+              {Number(averageRating).toFixed(1)}
             </span>
 
             <span className="text-gray-500">
@@ -164,14 +144,12 @@ function Reviews({ productId }) {
 
       </div>
 
-      {/* Form */}
+      {/* Review Form */}
 
       <ReviewForm
         onSubmit={handleSubmit}
         editingReview={editingReview}
-        onCancel={() =>
-          setEditingReview(null)
-        }
+        onCancel={() => setEditingReview(null)}
         loading={saving}
       />
 
@@ -182,15 +160,11 @@ function Reviews({ productId }) {
         <div className="bg-white rounded-2xl shadow-lg p-10 text-center">
 
           <h2 className="text-2xl font-bold">
-
             No Reviews Yet
-
           </h2>
 
           <p className="text-gray-500 mt-2">
-
             Be the first person to review this product.
-
           </p>
 
         </div>
@@ -200,14 +174,12 @@ function Reviews({ productId }) {
         <div className="space-y-6">
 
           {reviews.map((review) => (
-
             <ReviewCard
               key={review.id}
               review={review}
               onEdit={setEditingReview}
               onDelete={handleDelete}
             />
-
           ))}
 
         </div>
