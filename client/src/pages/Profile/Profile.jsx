@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
-  FaUserCircle,
+  FaUser,
   FaEnvelope,
   FaPhone,
-  FaUserTag,
-  FaCalendarAlt,
+  FaMapMarkerAlt,
   FaSave,
 } from "react-icons/fa";
 
@@ -15,16 +14,18 @@ import {
 } from "../../services/profileService";
 
 function Profile() {
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
-    role: "",
-    created_at: "",
+    address: "",
   });
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [saving, setSaving] =
+    useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -32,23 +33,31 @@ function Profile() {
 
   const fetchProfile = async () => {
     try {
-      const response = await getProfile();
+      const response =
+        await getProfile();
 
-      setFormData(response.user);
+      setForm({
+        name: response.user.name || "",
+        email: response.user.email || "",
+        phone: response.user.phone || "",
+        address:
+          response.user.address || "",
+      });
     } catch (error) {
-      console.log(error);
-
-      toast.error("Failed to load profile");
+      toast.error(
+        "Failed to load profile"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setForm({
+      ...form,
+      [e.target.name]:
+        e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -57,18 +66,14 @@ function Profile() {
     try {
       setSaving(true);
 
-      const response = await updateProfile({
-        name: formData.name,
-        phone: formData.phone,
-      });
+      const response =
+        await updateProfile(form);
 
       toast.success(response.message);
-
-      setFormData(response.user);
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
-          "Failed to update profile"
+          "Update failed"
       );
     } finally {
       setSaving(false);
@@ -88,155 +93,105 @@ function Profile() {
 
       <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl p-10">
 
-        {/* Avatar */}
-
-        <div className="flex flex-col items-center">
-
-          <div className="w-28 h-28 rounded-full bg-blue-600 text-white flex items-center justify-center text-6xl">
-
-            <FaUserCircle />
-
-          </div>
-
-          <h1 className="text-4xl font-bold mt-5">
-
-            My Profile
-
-          </h1>
-
-          <span className="mt-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full font-semibold">
-
-            {formData.role}
-
-          </span>
-
-        </div>
+        <h1 className="text-4xl font-bold mb-10">
+          My Profile
+        </h1>
 
         <form
           onSubmit={handleSubmit}
-          className="mt-10 space-y-6"
+          className="space-y-6"
         >
 
-          {/* Name */}
-
           <div>
 
-            <label className="font-semibold flex items-center gap-2 mb-2">
-
-              <FaUserCircle />
-
-              Full Name
-
+            <label className="font-semibold mb-2 block">
+              Name
             </label>
 
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-              required
-            />
+            <div className="relative">
+
+              <FaUser className="absolute left-4 top-4 text-gray-400"/>
+
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                className="w-full border rounded-xl pl-12 pr-4 py-3"
+              />
+
+            </div>
 
           </div>
 
-          {/* Email */}
-
           <div>
 
-            <label className="font-semibold flex items-center gap-2 mb-2">
-
-              <FaEnvelope />
-
+            <label className="font-semibold mb-2 block">
               Email
-
             </label>
 
-            <input
-              type="email"
-              value={formData.email}
-              readOnly
-              className="w-full border rounded-xl p-3 bg-gray-100 cursor-not-allowed"
-            />
+            <div className="relative">
+
+              <FaEnvelope className="absolute left-4 top-4 text-gray-400"/>
+
+              <input
+                type="email"
+                value={form.email}
+                disabled
+                className="w-full border rounded-xl pl-12 pr-4 py-3 bg-gray-100"
+              />
+
+            </div>
 
           </div>
 
-          {/* Phone */}
-
           <div>
 
-            <label className="font-semibold flex items-center gap-2 mb-2">
-
-              <FaPhone />
-
+            <label className="font-semibold mb-2 block">
               Phone
-
             </label>
 
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone || ""}
-              onChange={handleChange}
-              className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-            />
+            <div className="relative">
+
+              <FaPhone className="absolute left-4 top-4 text-gray-400"/>
+
+              <input
+                type="text"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                className="w-full border rounded-xl pl-12 pr-4 py-3"
+              />
+
+            </div>
 
           </div>
-
-          {/* Role */}
 
           <div>
 
-            <label className="font-semibold flex items-center gap-2 mb-2">
-
-              <FaUserTag />
-
-              Role
-
+            <label className="font-semibold mb-2 block">
+              Address
             </label>
 
-            <input
-              type="text"
-              value={formData.role}
-              readOnly
-              className="w-full border rounded-xl p-3 bg-gray-100"
-            />
+            <div className="relative">
+
+              <FaMapMarkerAlt className="absolute left-4 top-4 text-gray-400"/>
+
+              <textarea
+                rows="5"
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                className="w-full border rounded-xl pl-12 pr-4 py-3"
+              />
+
+            </div>
 
           </div>
-
-          {/* Joined */}
-
-          <div>
-
-            <label className="font-semibold flex items-center gap-2 mb-2">
-
-              <FaCalendarAlt />
-
-              Joined
-
-            </label>
-
-            <input
-              type="text"
-              value={
-                formData.created_at
-                  ? new Date(
-                      formData.created_at
-                    ).toLocaleDateString()
-                  : "-"
-              }
-              readOnly
-              className="w-full border rounded-xl p-3 bg-gray-100"
-            />
-
-          </div>
-
-          {/* Button */}
 
           <button
-            type="submit"
             disabled={saving}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold flex justify-center items-center gap-3 transition"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3"
           >
 
             <FaSave />

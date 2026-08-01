@@ -6,7 +6,6 @@ import {
 // ========================================
 // Get Logged In User Profile
 // ========================================
-
 export const getProfile = async (req, res) => {
   try {
     const user = await getUserById(req.user.id);
@@ -22,7 +21,6 @@ export const getProfile = async (req, res) => {
       success: true,
       user,
     });
-
   } catch (error) {
     console.error(error);
 
@@ -36,11 +34,13 @@ export const getProfile = async (req, res) => {
 // ========================================
 // Update Logged In User Profile
 // ========================================
-
 export const updateProfile = async (req, res) => {
   try {
-
-    const { name, phone } = req.body;
+    const {
+      name,
+      phone,
+      address,
+    } = req.body;
 
     if (!name) {
       return res.status(400).json({
@@ -53,7 +53,8 @@ export const updateProfile = async (req, res) => {
       await updateUserProfile(
         req.user.id,
         name,
-        phone
+        phone,
+        address
       );
 
     res.status(200).json({
@@ -61,15 +62,12 @@ export const updateProfile = async (req, res) => {
       message: "Profile updated successfully",
       user: updatedUser,
     });
-
   } catch (error) {
-
     console.error(error);
 
     res.status(500).json({
       success: false,
       message: "Failed to update profile",
     });
-
   }
 };

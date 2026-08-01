@@ -9,7 +9,7 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 
-import { getOrder } from "../../services/orderService";
+import { getOrderDetails } from "../../services/orderService";
 
 function OrderDetails() {
   const { id } = useParams();
