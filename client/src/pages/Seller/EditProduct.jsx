@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-
 import {
-  getProduct,
-  updateProduct,
-} from "../../services/productService";
+  FaArrowLeft,
+  FaBoxOpen,
+  FaFileAlt,
+  FaLayerGroup,
+  FaRupeeSign,
+  FaTag,
+  FaImage,
+} from "react-icons/fa";
 
 function EditProduct() {
   const { id } = useParams();
@@ -73,9 +77,9 @@ function EditProduct() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setSaving(true);
-
     try {
+      setSaving(true);
+
       const data = new FormData();
 
       data.append("name", formData.name);
@@ -108,111 +112,228 @@ function EditProduct() {
 
   if (loading) {
     return (
-      <div className="text-center py-20 text-2xl">
+      <div className="text-center py-24 text-3xl font-bold">
         Loading Product...
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-10 px-6">
+    <div className="bg-gray-100 min-h-screen py-10">
 
-      <h1 className="text-3xl font-bold mb-8">
-        Edit Product
-      </h1>
+      <div className="max-w-5xl mx-auto px-6">
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-xl p-8 space-y-5"
-      >
+        {/* Header */}
 
-        <input
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Product Name"
-          className="w-full border rounded-lg p-3"
-          required
-        />
+        <div className="flex flex-col md:flex-row justify-between md:items-center mb-10">
 
-        <textarea
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          rows="4"
-          placeholder="Description"
-          className="w-full border rounded-lg p-3"
-          required
-        />
+          <div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+            <h1 className="text-5xl font-bold">
+              Edit Product
+            </h1>
 
-          <input
-            name="price"
-            type="number"
-            value={formData.price}
-            onChange={handleChange}
-            placeholder="Price"
-            className="border rounded-lg p-3"
-            required
-          />
+            <p className="text-gray-500 mt-3">
+              Update your product information.
+            </p>
 
-          <input
-            name="stock"
-            type="number"
-            value={formData.stock}
-            onChange={handleChange}
-            placeholder="Stock"
-            className="border rounded-lg p-3"
-            required
-          />
+          </div>
+
+          <Link
+            to="/seller/products"
+            className="mt-5 md:mt-0 inline-flex items-center gap-2 bg-white border shadow px-6 py-3 rounded-xl hover:bg-gray-50 transition"
+          >
+            <FaArrowLeft />
+            Back
+          </Link>
 
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        {/* Form Card */}
 
-          <input
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            placeholder="Category"
-            className="border rounded-lg p-3"
-            required
-          />
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
 
-          <input
-            name="brand"
-            value={formData.brand}
-            onChange={handleChange}
-            placeholder="Brand"
-            className="border rounded-lg p-3"
-            required
-          />
+          <div className="bg-gradient-to-r from-green-600 to-emerald-700 text-white px-8 py-6 flex items-center gap-4">
+
+            <div className="bg-white/20 p-4 rounded-2xl">
+              <FaBoxOpen className="text-3xl" />
+            </div>
+
+            <div>
+
+              <h2 className="text-2xl font-bold">
+                Product Details
+              </h2>
+
+              <p className="text-green-100">
+                Update all required fields.
+              </p>
+
+            </div>
+
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="p-8 space-y-8"
+          >
+
+            <div>
+
+              <label className="font-semibold flex items-center gap-2 mb-2">
+                <FaBoxOpen />
+                Product Name
+              </label>
+
+              <input
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full border rounded-xl px-5 py-3 focus:ring-2 focus:ring-green-600 outline-none"
+                required
+              />
+
+            </div>
+
+            <div>
+
+              <label className="font-semibold flex items-center gap-2 mb-2">
+                <FaFileAlt />
+                Description
+              </label>
+
+              <textarea
+                rows="5"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                className="w-full border rounded-xl px-5 py-3 focus:ring-2 focus:ring-green-600 outline-none"
+                required
+              />
+
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+
+              <div>
+
+                <label className="font-semibold flex items-center gap-2 mb-2">
+                  <FaRupeeSign />
+                  Price
+                </label>
+
+                <input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  className="w-full border rounded-xl px-5 py-3 focus:ring-2 focus:ring-green-600 outline-none"
+                  required
+                />
+
+              </div>
+
+              <div>
+
+                <label className="font-semibold flex items-center gap-2 mb-2">
+                  <FaLayerGroup />
+                  Stock
+                </label>
+
+                <input
+                  type="number"
+                  name="stock"
+                  value={formData.stock}
+                  onChange={handleChange}
+                  className="w-full border rounded-xl px-5 py-3 focus:ring-2 focus:ring-green-600 outline-none"
+                  required
+                />
+
+              </div>
+
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+
+              <div>
+
+                <label className="font-semibold">
+                  Category
+                </label>
+
+                <input
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="w-full border rounded-xl px-5 py-3 mt-2 focus:ring-2 focus:ring-green-600 outline-none"
+                  required
+                />
+
+              </div>
+
+              <div>
+
+                <label className="font-semibold flex items-center gap-2">
+                  <FaTag />
+                  Brand
+                </label>
+
+                <input
+                  name="brand"
+                  value={formData.brand}
+                  onChange={handleChange}
+                  className="w-full border rounded-xl px-5 py-3 mt-2 focus:ring-2 focus:ring-green-600 outline-none"
+                  required
+                />
+
+              </div>
+
+            </div>
+
+            <div>
+
+              <label className="font-semibold flex items-center gap-2 mb-3">
+                <FaImage />
+                Product Image
+              </label>
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImage}
+                className="w-full border rounded-xl p-3"
+              />
+
+            </div>
+
+            {preview && (
+
+              <div className="flex justify-center">
+
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-72 h-72 rounded-2xl object-cover shadow-lg border"
+                />
+
+              </div>
+
+            )}
+
+            <button
+              disabled={saving}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl text-lg font-bold transition"
+            >
+              {saving
+                ? "Updating Product..."
+                : "Update Product"}
+            </button>
+
+          </form>
 
         </div>
 
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImage}
-        />
-
-        {preview && (
-          <img
-            src={preview}
-            alt="Preview"
-            className="w-52 h-52 object-cover rounded-lg border"
-          />
-        )}
-
-        <button
-          disabled={saving}
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold"
-        >
-          {saving ? "Updating..." : "Update Product"}
-        </button>
-
-      </form>
+      </div>
 
     </div>
   );

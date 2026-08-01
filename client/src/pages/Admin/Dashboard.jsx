@@ -1,5 +1,16 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import {
+  FaUsers,
+  FaBoxOpen,
+  FaShoppingCart,
+  FaRupeeSign,
+  FaClock,
+  FaCog,
+  FaTruck,
+  FaCheckCircle,
+  FaTimesCircle,
+} from "react-icons/fa";
 
 import { getDashboard } from "../../services/dashboardService";
 
@@ -9,7 +20,6 @@ import RecentUsers from "../../components/Admin/RecentUsers";
 
 function Dashboard() {
   const [loading, setLoading] = useState(true);
-
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
@@ -19,11 +29,9 @@ function Dashboard() {
   const fetchDashboard = async () => {
     try {
       const response = await getDashboard();
-
       setStats(response.stats);
     } catch (error) {
       console.log(error);
-
       toast.error("Failed to load dashboard");
     } finally {
       setLoading(false);
@@ -32,96 +40,143 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div className="text-center py-20 text-3xl">
+      <div className="text-center py-24 text-3xl font-bold">
         Loading Dashboard...
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
+    <div className="bg-gray-100 min-h-screen py-10">
 
-      <h1 className="text-4xl font-bold mb-10">
-        Admin Dashboard
-      </h1>
+      <div className="max-w-7xl mx-auto px-6">
 
-      {/* Statistics */}
+        {/* Header */}
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="mb-10">
 
-        <StatCard
-          title="Users"
-          value={stats.total_users}
-          color="bg-blue-600"
-        />
+          <h1 className="text-5xl font-bold">
+            Admin Dashboard
+          </h1>
 
-        <StatCard
-          title="Products"
-          value={stats.total_products}
-          color="bg-green-600"
-        />
+          <p className="text-gray-500 mt-3 text-lg">
+            Monitor users, products, orders and business performance.
+          </p>
 
-        <StatCard
-          title="Orders"
-          value={stats.total_orders}
-          color="bg-purple-600"
-        />
+        </div>
 
-        <StatCard
-          title="Revenue"
-          value={`₹${stats.total_revenue}`}
-          color="bg-red-600"
-        />
+        {/* Main Stats */}
 
-      </div>
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
 
-      {/* Order Status */}
+          <StatCard
+            title="Users"
+            value={stats.total_users}
+            color="bg-blue-600"
+            icon={<FaUsers />}
+          />
 
-      <div className="grid md:grid-cols-5 gap-6 mt-10">
+          <StatCard
+            title="Products"
+            value={stats.total_products}
+            color="bg-green-600"
+            icon={<FaBoxOpen />}
+          />
 
-        <StatCard
-          title="Pending"
-          value={stats.pending_orders}
-          color="bg-yellow-500"
-        />
+          <StatCard
+            title="Orders"
+            value={stats.total_orders}
+            color="bg-purple-600"
+            icon={<FaShoppingCart />}
+          />
 
-        <StatCard
-          title="Processing"
-          value={stats.processing_orders}
-          color="bg-blue-500"
-        />
+          <StatCard
+            title="Revenue"
+            value={`₹${stats.total_revenue}`}
+            color="bg-red-600"
+            icon={<FaRupeeSign />}
+          />
 
-        <StatCard
-          title="Shipped"
-          value={stats.shipped_orders}
-          color="bg-indigo-500"
-        />
+        </div>
 
-        <StatCard
-          title="Delivered"
-          value={stats.delivered_orders}
-          color="bg-green-500"
-        />
+        {/* Order Status */}
 
-        <StatCard
-          title="Cancelled"
-          value={stats.cancelled_orders}
-          color="bg-red-500"
-        />
+        <div className="mt-12">
 
-      </div>
+          <h2 className="text-3xl font-bold mb-6">
+            Order Status
+          </h2>
 
-      {/* Tables */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
 
-      <div className="grid lg:grid-cols-2 gap-8 mt-12">
+            <StatCard
+              title="Pending"
+              value={stats.pending_orders}
+              color="bg-yellow-500"
+              icon={<FaClock />}
+            />
 
-        <RecentOrders
-          orders={stats.latestOrders}
-        />
+            <StatCard
+              title="Processing"
+              value={stats.processing_orders}
+              color="bg-blue-500"
+              icon={<FaCog />}
+            />
 
-        <RecentUsers
-          users={stats.latestUsers}
-        />
+            <StatCard
+              title="Shipped"
+              value={stats.shipped_orders}
+              color="bg-indigo-500"
+              icon={<FaTruck />}
+            />
+
+            <StatCard
+              title="Delivered"
+              value={stats.delivered_orders}
+              color="bg-green-600"
+              icon={<FaCheckCircle />}
+            />
+
+            <StatCard
+              title="Cancelled"
+              value={stats.cancelled_orders}
+              color="bg-red-500"
+              icon={<FaTimesCircle />}
+            />
+
+          </div>
+
+        </div>
+
+        {/* Recent Data */}
+
+        <div className="grid lg:grid-cols-2 gap-8 mt-12">
+
+          <div className="bg-white rounded-3xl shadow-lg p-6">
+
+            <h2 className="text-2xl font-bold mb-6">
+              Recent Orders
+            </h2>
+
+            <RecentOrders
+              orders={stats.latestOrders}
+            />
+
+          </div>
+
+          <div className="bg-white rounded-3xl shadow-lg p-6">
+
+            <h2 className="text-2xl font-bold mb-6">
+              New Users
+            </h2>
+
+            <RecentUsers
+              users={stats.latestUsers}
+            />
+
+          </div>
+
+        </div>
 
       </div>
 

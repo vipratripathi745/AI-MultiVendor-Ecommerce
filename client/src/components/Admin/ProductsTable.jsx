@@ -1,9 +1,25 @@
+import {
+  FaTrash,
+  FaUserTie,
+} from "react-icons/fa";
+
+import EmptyState from "../Common/EmptyState";
+
 function ProductsTable({
   products,
   onDelete,
 }) {
+    if (products.length === 0) {
+      return (
+        <EmptyState
+          title="No Products Found"
+          description="Products added by sellers will appear here."
+        />
+      );
+    }
+
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="overflow-x-auto">
 
       <table className="w-full">
 
@@ -11,21 +27,33 @@ function ProductsTable({
 
           <tr>
 
-            <th className="p-4">Image</th>
+            <th className="px-6 py-5 text-left">
+              Product
+            </th>
 
-            <th>Name</th>
+            <th className="px-6 py-5 text-left">
+              Seller
+            </th>
 
-            <th>Seller</th>
+            <th className="px-6 py-5 text-left">
+              Category
+            </th>
 
-            <th>Category</th>
+            <th className="px-6 py-5 text-left">
+              Brand
+            </th>
 
-            <th>Brand</th>
+            <th className="px-6 py-5 text-left">
+              Price
+            </th>
 
-            <th>Price</th>
+            <th className="px-6 py-5 text-left">
+              Stock
+            </th>
 
-            <th>Stock</th>
-
-            <th>Action</th>
+            <th className="px-6 py-5 text-center">
+              Action
+            </th>
 
           </tr>
 
@@ -37,62 +65,118 @@ function ProductsTable({
 
             <tr
               key={product.id}
-              className="border-t hover:bg-gray-50"
+              className="border-b hover:bg-gray-50 transition"
             >
 
-              <td className="p-4">
+              {/* Product */}
 
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-16 h-16 rounded-lg object-cover mx-auto"
-                />
+              <td className="px-6 py-5">
+
+                <div className="flex items-center gap-4">
+
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-20 h-20 rounded-2xl object-cover shadow"
+                  />
+
+                  <div>
+
+                    <h3 className="font-bold text-lg">
+                      {product.name}
+                    </h3>
+
+                    <p className="text-gray-500 text-sm">
+                      Product ID #{product.id}
+                    </p>
+
+                  </div>
+
+                </div>
 
               </td>
 
-              <td className="font-semibold">
-                {product.name}
+              {/* Seller */}
+
+              <td className="px-6 py-5">
+
+                <div className="flex items-center gap-2">
+
+                  <FaUserTie className="text-blue-600" />
+
+                  <span className="font-medium">
+                    {product.seller_name}
+                  </span>
+
+                </div>
+
               </td>
 
-              <td>
-                {product.seller_name}
+              {/* Category */}
+
+              <td className="px-6 py-5">
+
+                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold">
+
+                  {product.category}
+
+                </span>
+
               </td>
 
-              <td>
-                {product.category}
-              </td>
+              {/* Brand */}
 
-              <td>
+              <td className="px-6 py-5">
                 {product.brand}
               </td>
 
-              <td className="text-blue-600 font-semibold">
-                ₹{product.price}
-              </td>
+              {/* Price */}
 
-              <td>
+              <td className="px-6 py-5">
 
-                {product.stock > 0 ? (
-                  <span className="text-green-600 font-semibold">
-                    {product.stock}
-                  </span>
-                ) : (
-                  <span className="text-red-600 font-semibold">
-                    Out of Stock
-                  </span>
-                )}
+                <span className="text-xl font-bold text-green-600">
+
+                  ₹{product.price}
+
+                </span>
 
               </td>
 
-              <td>
+              {/* Stock */}
+
+              <td className="px-6 py-5">
+
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                    product.stock > 10
+                      ? "bg-green-100 text-green-700"
+                      : product.stock > 0
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {product.stock > 0
+                    ? product.stock
+                    : "Out of Stock"}
+                </span>
+
+              </td>
+
+              {/* Action */}
+
+              <td className="px-6 py-5 text-center">
 
                 <button
                   onClick={() =>
                     onDelete(product.id)
                   }
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+                  className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl transition"
                 >
+
+                  <FaTrash />
+
                   Delete
+
                 </button>
 
               </td>
@@ -104,16 +188,6 @@ function ProductsTable({
         </tbody>
 
       </table>
-
-      {products.length === 0 && (
-
-        <div className="text-center py-10 text-gray-500">
-
-          No Products Found
-
-        </div>
-
-      )}
 
     </div>
   );

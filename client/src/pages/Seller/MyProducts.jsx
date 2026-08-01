@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import {
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaBoxOpen,
+} from "react-icons/fa";
 
 import {
   getSellerProducts,
   deleteProduct,
 } from "../../services/productService";
+
+import EmptyState from "../../components/Common/EmptyState";
 
 function MyProducts() {
   const [products, setProducts] = useState([]);
@@ -22,7 +29,6 @@ function MyProducts() {
       setProducts(response.products);
     } catch (error) {
       console.log(error);
-
       toast.error("Failed to load products");
     } finally {
       setLoading(false);
@@ -30,11 +36,7 @@ function MyProducts() {
   };
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Delete this product?"
-    );
-
-    if (!confirmDelete) return;
+    if (!window.confirm("Delete this product?")) return;
 
     try {
       const response = await deleteProduct(id);
@@ -46,14 +48,13 @@ function MyProducts() {
       );
     } catch (error) {
       console.log(error);
-
       toast.error("Delete failed");
     }
   };
 
   if (loading) {
     return (
-      <div className="text-center py-20 text-xl">
+      <div className="text-center py-24 text-3xl font-bold">
         Loading Products...
       </div>
     );
@@ -61,131 +62,186 @@ function MyProducts() {
 
   if (products.length === 0) {
     return (
-      <div className="text-center py-20">
-        <h2 className="text-3xl font-bold">
-          No Products Found
-        </h2>
-
-        <Link
-          to="/seller/add-product"
-          className="inline-block mt-6 bg-blue-600 text-white px-6 py-3 rounded-lg"
-        >
-          Add Product
-        </Link>
-      </div>
+      <EmptyState
+        title="No Products Added"
+        description="Start selling by adding your first product."
+        buttonText="Add Product"
+        buttonLink="/seller/add-product"
+      />
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
+    <div className="bg-gray-100 min-h-screen py-10">
 
-      <div className="flex justify-between items-center mb-8">
+      <div className="max-w-7xl mx-auto px-6">
 
-        <h1 className="text-3xl font-bold">
-          My Products
-        </h1>
+        {/* Header */}
 
-        <Link
-          to="/seller/add-product"
-          className="bg-blue-600 text-white px-5 py-2 rounded-lg"
-        >
-          Add Product
-        </Link>
+        <div className="flex flex-col md:flex-row justify-between md:items-center mb-10">
 
-      </div>
+          <div>
 
-      <div className="overflow-x-auto bg-white rounded-xl shadow">
+            <h1 className="text-5xl font-bold">
+              My Products
+            </h1>
 
-        <table className="min-w-full">
+            <p className="text-gray-500 mt-2">
+              Manage all your listed products.
+            </p>
 
-          <thead className="bg-gray-100">
+          </div>
 
-            <tr>
+          <Link
+            to="/seller/add-product"
+            className="mt-5 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-7 py-3 rounded-xl font-semibold flex items-center gap-2 transition"
+          >
+            <FaPlus />
+            Add Product
+          </Link>
 
-              <th className="p-4 text-left">Image</th>
+        </div>
 
-              <th className="p-4 text-left">Product</th>
+        {/* Products Table */}
 
-              <th className="p-4 text-left">Category</th>
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
 
-              <th className="p-4 text-left">Price</th>
+          <table className="w-full">
 
-              <th className="p-4 text-left">Stock</th>
+            <thead className="bg-gray-100">
 
-              <th className="p-4 text-center">Edit</th>
+              <tr>
 
-              <th className="p-4 text-center">Delete</th>
+                <th className="p-5 text-left">
+                  Product
+                </th>
 
-            </tr>
+                <th className="p-5 text-left">
+                  Category
+                </th>
 
-          </thead>
+                <th className="p-5 text-left">
+                  Price
+                </th>
 
-          <tbody>
+                <th className="p-5 text-left">
+                  Stock
+                </th>
 
-            {products.map((product) => (
-
-              <tr
-                key={product.id}
-                className="border-b"
-              >
-
-                <td className="p-4">
-
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-20 h-20 object-cover rounded"
-                  />
-
-                </td>
-
-                <td className="p-4 font-semibold">
-                  {product.name}
-                </td>
-
-                <td className="p-4">
-                  {product.category}
-                </td>
-
-                <td className="p-4">
-                  ₹{product.price}
-                </td>
-
-                <td className="p-4">
-                  {product.stock}
-                </td>
-
-                <td className="p-4 text-center">
-
-                  <Link
-                    to={`/seller/edit-product/${product.id}`}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded"
-                  >
-                    Edit
-                  </Link>
-
-                </td>
-
-                <td className="p-4 text-center">
-
-                  <button
-                    onClick={() =>
-                      handleDelete(product.id)
-                    }
-                    className="bg-red-600 text-white px-4 py-2 rounded"
-                  >
-                    Delete
-                  </button>
-
-                </td>
+                <th className="p-5 text-center">
+                  Actions
+                </th>
 
               </tr>
 
-            ))}
+            </thead>
 
-          </tbody>
+            <tbody>
 
-        </table>
+              {products.map((product) => (
+
+                <tr
+                  key={product.id}
+                  className="border-b hover:bg-gray-50 transition"
+                >
+
+                  <td className="p-5">
+
+                    <div className="flex items-center gap-4">
+
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-20 h-20 rounded-xl object-cover"
+                      />
+
+                      <div>
+
+                        <h3 className="font-bold text-lg">
+
+                          {product.name}
+
+                        </h3>
+
+                        <p className="text-gray-500 text-sm">
+
+                          {product.brand}
+
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                  </td>
+
+                  <td className="p-5">
+
+                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold">
+
+                      {product.category}
+
+                    </span>
+
+                  </td>
+
+                  <td className="p-5 font-bold text-blue-600 text-lg">
+
+                    ₹{product.price}
+
+                  </td>
+
+                  <td className="p-5">
+
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                        product.stock > 10
+                          ? "bg-green-100 text-green-700"
+                          : product.stock > 0
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {product.stock}
+                    </span>
+
+                  </td>
+
+                  <td className="p-5">
+
+                    <div className="flex justify-center gap-3">
+
+                      <Link
+                        to={`/seller/edit-product/${product.id}`}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition"
+                      >
+                        <FaEdit />
+                        Edit
+                      </Link>
+
+                      <button
+                        onClick={() =>
+                          handleDelete(product.id)
+                        }
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition"
+                      >
+                        <FaTrash />
+                        Delete
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </div>
 

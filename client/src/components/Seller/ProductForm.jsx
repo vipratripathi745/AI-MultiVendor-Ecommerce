@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import {
+  FaBox,
+  FaFileAlt,
+  FaRupeeSign,
+  FaLayerGroup,
+  FaTag,
+  FaImage,
+} from "react-icons/fa";
 
 import { createProduct } from "../../services/productService";
 
@@ -45,9 +53,9 @@ function ProductForm() {
       return;
     }
 
-    setLoading(true);
-
     try {
+      setLoading(true);
+
       const data = new FormData();
 
       data.append("name", formData.name);
@@ -90,93 +98,181 @@ function ProductForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white p-8 rounded-xl shadow-lg space-y-5"
+      className="space-y-8"
     >
-      <input
-        type="text"
-        name="name"
-        value={formData.name}
-        onChange={handleChange}
-        placeholder="Product Name"
-        className="w-full border rounded-lg p-3"
-        required
-      />
+      {/* Product Name */}
 
-      <textarea
-        name="description"
-        value={formData.description}
-        onChange={handleChange}
-        placeholder="Description"
-        className="w-full border rounded-lg p-3"
-        rows="4"
-        required
-      />
+      <div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <input
-          type="number"
-          name="price"
-          value={formData.price}
-          onChange={handleChange}
-          placeholder="Price"
-          className="border rounded-lg p-3"
-          required
-        />
-
-        <input
-          type="number"
-          name="stock"
-          value={formData.stock}
-          onChange={handleChange}
-          placeholder="Stock"
-          className="border rounded-lg p-3"
-          required
-        />
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-4">
-        <input
-          type="text"
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          placeholder="Category"
-          className="border rounded-lg p-3"
-          required
-        />
+        <label className="font-semibold flex items-center gap-2 mb-2">
+          <FaBox />
+          Product Name
+        </label>
 
         <input
           type="text"
-          name="brand"
-          value={formData.brand}
+          name="name"
+          value={formData.name}
           onChange={handleChange}
-          placeholder="Brand"
-          className="border rounded-lg p-3"
+          placeholder="Apple iPhone 16 Pro"
+          className="w-full border rounded-xl px-5 py-3 focus:ring-2 focus:ring-blue-600 outline-none"
           required
         />
+
       </div>
 
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleImage}
-      />
+      {/* Description */}
+
+      <div>
+
+        <label className="font-semibold flex items-center gap-2 mb-2">
+          <FaFileAlt />
+          Description
+        </label>
+
+        <textarea
+          name="description"
+          rows="5"
+          value={formData.description}
+          onChange={handleChange}
+          placeholder="Write product description..."
+          className="w-full border rounded-xl px-5 py-3 focus:ring-2 focus:ring-blue-600 outline-none"
+          required
+        />
+
+      </div>
+
+      {/* Price & Stock */}
+
+      <div className="grid md:grid-cols-2 gap-6">
+
+        <div>
+
+          <label className="font-semibold flex items-center gap-2 mb-2">
+            <FaRupeeSign />
+            Price
+          </label>
+
+          <input
+            type="number"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            placeholder="99999"
+            className="w-full border rounded-xl px-5 py-3 focus:ring-2 focus:ring-blue-600 outline-none"
+            required
+          />
+
+        </div>
+
+        <div>
+
+          <label className="font-semibold flex items-center gap-2 mb-2">
+            <FaLayerGroup />
+            Stock
+          </label>
+
+          <input
+            type="number"
+            name="stock"
+            value={formData.stock}
+            onChange={handleChange}
+            placeholder="100"
+            className="w-full border rounded-xl px-5 py-3 focus:ring-2 focus:ring-blue-600 outline-none"
+            required
+          />
+
+        </div>
+
+      </div>
+
+      {/* Category & Brand */}
+
+      <div className="grid md:grid-cols-2 gap-6">
+
+        <div>
+
+          <label className="font-semibold mb-2 block">
+            Category
+          </label>
+
+          <input
+            type="text"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            placeholder="Electronics"
+            className="w-full border rounded-xl px-5 py-3 focus:ring-2 focus:ring-blue-600 outline-none"
+            required
+          />
+
+        </div>
+
+        <div>
+
+          <label className="font-semibold flex items-center gap-2 mb-2">
+            <FaTag />
+            Brand
+          </label>
+
+          <input
+            type="text"
+            name="brand"
+            value={formData.brand}
+            onChange={handleChange}
+            placeholder="Apple"
+            className="w-full border rounded-xl px-5 py-3 focus:ring-2 focus:ring-blue-600 outline-none"
+            required
+          />
+
+        </div>
+
+      </div>
+
+      {/* Image */}
+
+      <div>
+
+        <label className="font-semibold flex items-center gap-2 mb-3">
+          <FaImage />
+          Product Image
+        </label>
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImage}
+          className="w-full border rounded-xl p-3"
+        />
+
+      </div>
 
       {preview && (
-        <img
-          src={preview}
-          alt="Preview"
-          className="w-52 h-52 object-cover rounded-lg border"
-        />
+
+        <div className="flex justify-center">
+
+          <img
+            src={preview}
+            alt="Preview"
+            className="w-72 h-72 rounded-2xl object-cover shadow-lg border"
+          />
+
+        </div>
+
       )}
+
+      {/* Submit */}
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl text-lg font-bold transition"
       >
-        {loading ? "Uploading..." : "Upload Product"}
+        {loading
+          ? "Uploading Product..."
+          : "Upload Product"}
       </button>
+
     </form>
   );
 }

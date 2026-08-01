@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+
 import {
   FaTrash,
   FaMinus,
@@ -14,6 +15,7 @@ import {
 } from "../../services/cartService";
 
 import CartSummary from "../../components/Cart/CartSummary";
+import EmptyState from "../../components/Common/EmptyState";
 
 function Cart() {
   const [cart, setCart] = useState([]);
@@ -105,21 +107,12 @@ function Cart() {
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center">
-
-        <h1 className="text-5xl font-bold">
-
-          🛒 Your Cart is Empty
-
-        </h1>
-
-        <p className="text-gray-500 mt-5 text-xl">
-
-          Add products to continue shopping.
-
-        </p>
-
-      </div>
+      <EmptyState
+        title="Your Cart is Empty"
+        description="Looks like you haven't added any products to your cart yet."
+        buttonText="Continue Shopping"
+        buttonLink="/"
+      />
     );
   }
 

@@ -7,13 +7,16 @@ import "./index.css";
 import App from "./App.jsx";
 
 import { AuthProvider } from "./context/AuthContext";
+import { SearchProvider } from "./context/SearchContext";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
-        <Toaster position="top-right" />
+        <SearchProvider>
+          <App />
+          <Toaster position="top-right" />
+        </SearchProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>

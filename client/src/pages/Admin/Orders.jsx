@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { FaShoppingCart } from "react-icons/fa";
 
 import {
   getAdminOrders,
@@ -65,33 +66,65 @@ function Orders() {
 
   if (loading) {
     return (
-      <div className="text-center py-20 text-3xl">
+      <div className="text-center py-24 text-3xl font-bold">
         Loading Orders...
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
+    <div className="bg-gray-100 min-h-screen py-10">
 
-      <div className="flex justify-between items-center mb-10">
+      <div className="max-w-7xl mx-auto px-6">
 
-        <h1 className="text-4xl font-bold">
-          Order Management
-        </h1>
+        {/* Header */}
 
-        <span className="bg-blue-600 text-white px-5 py-2 rounded-lg">
-          Total Orders : {orders.length}
-        </span>
+        <div className="flex flex-col md:flex-row justify-between md:items-center mb-10">
+
+          <div>
+
+            <h1 className="text-5xl font-bold flex items-center gap-4">
+
+              <FaShoppingCart className="text-purple-600" />
+
+              Order Management
+
+            </h1>
+
+            <p className="text-gray-500 mt-3 text-lg">
+              Track, monitor and update all customer orders.
+            </p>
+
+          </div>
+
+          <div className="mt-5 md:mt-0 bg-purple-600 text-white px-8 py-4 rounded-2xl shadow-lg">
+
+            <p className="text-sm uppercase tracking-wide">
+              Total Orders
+            </p>
+
+            <h2 className="text-3xl font-bold">
+              {orders.length}
+            </h2>
+
+          </div>
+
+        </div>
+
+        {/* Orders Table */}
+
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+
+          <OrdersTable
+            orders={orders}
+            onStatusChange={
+              handleStatusChange
+            }
+          />
+
+        </div>
 
       </div>
-
-      <OrdersTable
-        orders={orders}
-        onStatusChange={
-          handleStatusChange
-        }
-      />
 
     </div>
   );

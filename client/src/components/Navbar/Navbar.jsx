@@ -8,9 +8,11 @@ import {
 } from "react-icons/fa";
 
 import useAuth from "../../hooks/useAuth";
+import { useSearch } from "../../context/SearchContext";
 
 function Navbar() {
   const { user, logout } = useAuth();
+  const { search, setSearch } = useSearch();
 
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-md border-b">
@@ -32,7 +34,9 @@ function Navbar() {
           <input
             type="text"
             placeholder="Search products..."
-            className="w-full border rounded-full py-2 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full border rounded-full py-2 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
 
           <FaSearch className="absolute left-4 top-3 text-gray-400" />

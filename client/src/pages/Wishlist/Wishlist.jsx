@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import {
+  FaHeart,
+  FaShoppingCart,
+  FaTrash,
+  FaStar,
+} from "react-icons/fa";
 
 import {
   getWishlist,
@@ -7,6 +13,7 @@ import {
 } from "../../services/wishlistService";
 
 import { addToCart } from "../../services/cartService";
+import EmptyState from "../../components/Common/EmptyState";
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
@@ -19,11 +26,9 @@ function Wishlist() {
   const fetchWishlist = async () => {
     try {
       const response = await getWishlist();
-
       setWishlist(response.wishlist);
     } catch (error) {
       console.log(error);
-
       toast.error("Failed to load wishlist");
     } finally {
       setLoading(false);
@@ -37,7 +42,9 @@ function Wishlist() {
       toast.success(response.message);
 
       setWishlist((prev) =>
-        prev.filter((item) => item.product_id !== productId)
+        prev.filter(
+          (item) => item.product_id !== productId
+        )
       );
     } catch (error) {
       toast.error(
@@ -62,7 +69,7 @@ function Wishlist() {
 
   if (loading) {
     return (
-      <div className="text-center py-20 text-3xl">
+      <div className="text-center py-24 text-3xl font-bold">
         Loading Wishlist...
       </div>
     );
@@ -70,77 +77,118 @@ function Wishlist() {
 
   if (wishlist.length === 0) {
     return (
-      <div className="text-center py-20">
-        <h1 className="text-4xl font-bold">
-          Your Wishlist is Empty
-        </h1>
-      </div>
+      <EmptyState
+        title="Your Wishlist is Empty"
+        description="Save your favourite products here and access them anytime."
+        buttonText="Browse Products"
+        buttonLink="/"
+      />
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
+    <div className="bg-gray-100 min-h-screen py-12">
 
-      <h1 className="text-4xl font-bold mb-10">
-        My Wishlist
-      </h1>
+      <div className="max-w-7xl mx-auto px-6">
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <h1 className="text-5xl font-bold mb-10">
+          My Wishlist
+        </h1>
 
-        {wishlist.map((item) => (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
 
-          <div
-            key={item.product_id}
-            className="bg-white rounded-xl shadow-lg overflow-hidden"
-          >
+          {wishlist.map((item) => (
 
-            <img
-              src={item.image}
-              alt={item.name}
-              className="w-full h-60 object-cover"
-            />
+            <div
+              key={item.product_id}
+              className="group bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition duration-300"
+            >
 
-            <div className="p-5">
+              <div className="relative overflow-hidden">
 
-              <h2 className="text-2xl font-bold">
-                {item.name}
-              </h2>
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-64 object-cover group-hover:scale-110 transition duration-500"
+                />
 
-              <p className="text-gray-500 mt-2">
-                {item.brand}
-              </p>
+                <span className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  Wishlist
+                </span>
 
-              <p className="text-blue-600 text-2xl font-bold mt-5">
-                ₹{item.price}
-              </p>
+              </div>
 
-              <div className="flex gap-3 mt-6">
+              <div className="p-6">
 
-                <button
-                  onClick={() =>
-                    handleMoveToCart(item.product_id)
-                  }
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg"
-                >
-                  Add To Cart
-                </button>
+                <p className="uppercase text-gray-400 text-sm">
 
-                <button
-                  onClick={() =>
-                    handleRemove(item.product_id)
-                  }
-                  className="flex-1 bg-red-600 text-white py-3 rounded-lg"
-                >
-                  Remove
-                </button>
+                  {item.brand}
+
+                </p>
+
+                <h2 className="text-2xl font-bold mt-2">
+
+                  {item.name}
+
+                </h2>
+
+                <div className="flex items-center gap-1 mt-3 text-yellow-400">
+
+                  <FaStar />
+                  <FaStar />
+                  <FaStar />
+                  <FaStar />
+                  <FaStar />
+
+                  <span className="text-gray-600 ml-2">
+                    5.0
+                  </span>
+
+                </div>
+
+                <h3 className="text-3xl text-blue-600 font-bold mt-5">
+
+                  ₹{item.price}
+
+                </h3>
+
+                <div className="grid grid-cols-2 gap-3 mt-6">
+
+                  <button
+                    onClick={() =>
+                      handleMoveToCart(item.product_id)
+                    }
+                    className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold flex justify-center items-center gap-2 transition"
+                  >
+
+                    <FaShoppingCart />
+
+                    Cart
+
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      handleRemove(item.product_id)
+                    }
+                    className="bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-semibold flex justify-center items-center gap-2 transition"
+                  >
+
+                    <FaTrash />
+
+                    Remove
+
+                  </button>
+
+                </div>
 
               </div>
 
             </div>
 
-          </div>
+          ))}
 
-        ))}
+        </div>
 
       </div>
 

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
-  FaBoxOpen,
   FaCalendarAlt,
   FaCreditCard,
   FaEye,
@@ -13,6 +12,8 @@ import {
   getMyOrders,
   cancelOrder,
 } from "../../services/orderService";
+
+import EmptyState from "../../components/Common/EmptyState";
 
 function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -83,19 +84,12 @@ function MyOrders() {
 
   if (orders.length === 0) {
     return (
-      <div className="min-h-[70vh] flex flex-col justify-center items-center">
-
-        <FaBoxOpen className="text-7xl text-gray-400 mb-5" />
-
-        <h1 className="text-5xl font-bold">
-          No Orders Yet
-        </h1>
-
-        <p className="text-gray-500 mt-4 text-lg">
-          Your orders will appear here.
-        </p>
-
-      </div>
+      <EmptyState
+        title="No Orders Yet"
+        description="You haven't placed any orders yet. Start shopping to see your orders here."
+        buttonText="Start Shopping"
+        buttonLink="/"
+      />
     );
   }
 

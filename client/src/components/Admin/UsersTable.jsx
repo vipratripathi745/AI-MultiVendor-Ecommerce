@@ -1,10 +1,17 @@
+import {
+  FaTrash,
+  FaUserShield,
+  FaUserTie,
+  FaUser,
+} from "react-icons/fa";
+
 function UsersTable({
   users,
   onRoleChange,
   onDelete,
 }) {
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="overflow-x-auto">
 
       <table className="w-full">
 
@@ -12,23 +19,23 @@ function UsersTable({
 
           <tr>
 
-            <th className="p-4 text-left">
-              Name
+            <th className="px-6 py-5 text-left font-bold">
+              User
             </th>
 
-            <th className="text-left">
+            <th className="px-6 py-5 text-left font-bold">
               Email
             </th>
 
-            <th className="text-left">
+            <th className="px-6 py-5 text-left font-bold">
               Phone
             </th>
 
-            <th className="text-left">
+            <th className="px-6 py-5 text-left font-bold">
               Role
             </th>
 
-            <th className="text-center">
+            <th className="px-6 py-5 text-center font-bold">
               Action
             </th>
 
@@ -42,22 +49,58 @@ function UsersTable({
 
             <tr
               key={user.id}
-              className="border-t"
+              className="border-b hover:bg-gray-50 transition"
             >
 
-              <td className="p-4">
-                {user.name}
+              {/* User */}
+
+              <td className="px-6 py-5">
+
+                <div className="flex items-center gap-4">
+
+                  <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl">
+
+                    {user.role === "admin" ? (
+                      <FaUserShield />
+                    ) : user.role === "seller" ? (
+                      <FaUserTie />
+                    ) : (
+                      <FaUser />
+                    )}
+
+                  </div>
+
+                  <div>
+
+                    <h3 className="font-bold text-lg">
+                      {user.name}
+                    </h3>
+
+                    <p className="text-gray-500 text-sm">
+                      ID #{user.id}
+                    </p>
+
+                  </div>
+
+                </div>
+
               </td>
 
-              <td>
+              {/* Email */}
+
+              <td className="px-6 py-5 text-gray-700">
                 {user.email}
               </td>
 
-              <td>
-                {user.phone}
+              {/* Phone */}
+
+              <td className="px-6 py-5">
+                {user.phone || "-"}
               </td>
 
-              <td>
+              {/* Role */}
+
+              <td className="px-6 py-5">
 
                 <select
                   value={user.role}
@@ -67,7 +110,7 @@ function UsersTable({
                       e.target.value
                     )
                   }
-                  className="border rounded-lg px-3 py-2"
+                  className="border rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
                 >
 
                   <option value="customer">
@@ -86,15 +129,21 @@ function UsersTable({
 
               </td>
 
-              <td className="text-center">
+              {/* Action */}
+
+              <td className="px-6 py-5 text-center">
 
                 <button
                   onClick={() =>
                     onDelete(user.id)
                   }
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg"
+                  className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-xl transition"
                 >
+
+                  <FaTrash />
+
                   Delete
+
                 </button>
 
               </td>

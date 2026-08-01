@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FaShippingFast,
   FaShieldAlt,
@@ -7,28 +7,45 @@ import {
 } from "react-icons/fa";
 
 import ProductCard from "../../components/ProductCard/ProductCard";
+import SkeletonCard from "../../components/Loading/SkeletonCard";
 import { getAllProducts } from "../../services/productService";
 
+import { useSearch } from "../../context/SearchContext";
+import EmptyState from "../../components/Common/EmptyState";
 function Home() {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const {
+    search,
+    category,
+    setCategory,
+  } = useSearch();
+
+  
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
+    setLoading(true);
+
     try {
       const data = await getAllProducts();
 
       if (data.success) {
+        console.log(data.products);
         setProducts(data.products);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const categories = [
+    "All",
     "Electronics",
     "Fashion",
     "Shoes",
@@ -36,6 +53,23 @@ function Home() {
     "Laptop",
     "Mobile",
   ];
+
+  const filteredProducts = useMemo(() => {
+    const keyword = search.toLowerCase();
+
+    return products.filter((product) => {
+      const matchesSearch =
+        product.name?.toLowerCase().includes(keyword) ||
+        product.brand?.toLowerCase().includes(keyword) ||
+        product.category?.toLowerCase().includes(keyword);
+
+      const matchesCategory =
+        category === "All" ||
+        product.category?.toLowerCase() === category.toLowerCase();
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, search, category]);
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -53,27 +87,19 @@ function Home() {
             </span>
 
             <h1 className="text-6xl font-extrabold mt-8 leading-tight">
-
               Shop Smarter
-
               <br />
-
               Live Better
-
             </h1>
 
             <p className="mt-8 text-xl text-blue-100">
-
               Buy premium electronics, fashion,
               accessories and much more with
               exclusive discounts.
-
             </p>
 
             <button className="mt-10 bg-white text-blue-700 px-8 py-4 rounded-xl font-bold hover:scale-105 transition">
-
               Shop Now
-
             </button>
 
           </div>
@@ -97,23 +123,27 @@ function Home() {
       <section className="max-w-7xl mx-auto py-16 px-6">
 
         <h2 className="text-4xl font-bold mb-10 text-center">
-
           Shop by Category
-
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
 
           {categories.map((item) => (
 
-            <div
+            <button
               key={item}
-              className="bg-white rounded-2xl shadow-md p-8 text-center font-semibold hover:bg-blue-600 hover:text-white hover:-translate-y-2 transition duration-300 cursor-pointer"
+              onClick={() => setCategory(item)}
+              className={`rounded-2xl shadow-md p-8 text-center font-semibold transition duration-300 cursor-pointer hover:-translate-y-2
+
+                ${
+                  category === item
+                    ? "bg-blue-600 text-white"
+                    : "bg-white hover:bg-blue-600 hover:text-white"
+                }
+              `}
             >
-
               {item}
-
-            </div>
+            </button>
 
           ))}
 
@@ -197,7 +227,7 @@ function Home() {
             Featured Products
           </h2>
 
-          <button className="text-blue-600 font-semibold">
+          <button className="text-blue-600 font-semibold hover:underline">
             View All →
           </button>
 
@@ -205,14 +235,35 @@ function Home() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
 
-          {products.map((product) => (
+          {loading ? (
 
-            <ProductCard
-              key={product.id}
-              product={product}
-            />
+            [...Array(8)].map((_, index) => (
+              <SkeletonCard key={index} />
+            ))
 
-          ))}
+          ) : filteredProducts.length > 0 ? (
+
+                filteredProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                  />
+                ))
+
+              ) : (
+
+                <div className="col-span-full">
+
+                  <EmptyState
+                    title="No Products Found"
+                    description={`No products match "${search}". Try a different keyword.`}
+                    buttonText="Clear Search"
+                    buttonLink="/"
+                  />
+
+                </div>
+
+              )}
 
         </div>
 

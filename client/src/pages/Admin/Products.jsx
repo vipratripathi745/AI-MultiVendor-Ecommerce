@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { FaBoxOpen } from "react-icons/fa";
 
 import {
   getAdminProducts,
@@ -57,31 +58,63 @@ function Products() {
 
   if (loading) {
     return (
-      <div className="text-center py-20 text-3xl">
+      <div className="text-center py-24 text-3xl font-bold">
         Loading Products...
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
+    <div className="bg-gray-100 min-h-screen py-10">
 
-      <div className="flex justify-between items-center mb-10">
+      <div className="max-w-7xl mx-auto px-6">
 
-        <h1 className="text-4xl font-bold">
-          Product Management
-        </h1>
+        {/* Header */}
 
-        <span className="bg-blue-600 text-white px-5 py-2 rounded-lg">
-          Total Products : {products.length}
-        </span>
+        <div className="flex flex-col md:flex-row justify-between md:items-center mb-10">
+
+          <div>
+
+            <h1 className="text-5xl font-bold flex items-center gap-4">
+
+              <FaBoxOpen className="text-green-600" />
+
+              Product Management
+
+            </h1>
+
+            <p className="text-gray-500 mt-3 text-lg">
+              View, monitor and manage all products across the platform.
+            </p>
+
+          </div>
+
+          <div className="mt-5 md:mt-0 bg-green-600 text-white px-8 py-4 rounded-2xl shadow-lg">
+
+            <p className="text-sm uppercase tracking-wide">
+              Total Products
+            </p>
+
+            <h2 className="text-3xl font-bold">
+              {products.length}
+            </h2>
+
+          </div>
+
+        </div>
+
+        {/* Table */}
+
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+
+          <ProductsTable
+            products={products}
+            onDelete={handleDelete}
+          />
+
+        </div>
 
       </div>
-
-      <ProductsTable
-        products={products}
-        onDelete={handleDelete}
-      />
 
     </div>
   );

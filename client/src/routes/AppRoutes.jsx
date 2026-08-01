@@ -19,6 +19,7 @@ import Orders from "../pages/Admin/Orders";
 import AdminDashboard from "../pages/Admin/Dashboard";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Analytics from "../pages/Admin/Analytics";
+import NotFound from "../pages/NotFound/NotFound";
 
 function AppRoutes() {
   return (
@@ -169,6 +170,11 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />     
+
+        <Route
+          path="*"
+          element={<NotFound />}
+        />       
 
       </Route>
     </Routes>
