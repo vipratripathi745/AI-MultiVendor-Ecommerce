@@ -5,6 +5,8 @@ import {
   FaUserCircle,
   FaSignOutAlt,
   FaSearch,
+  FaUser,
+  FaClipboardList,
 } from "react-icons/fa";
 
 import useAuth from "../../hooks/useAuth";
@@ -16,6 +18,7 @@ function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-md border-b">
+
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
 
         {/* Logo */}
@@ -35,7 +38,9 @@ function Navbar() {
             type="text"
             placeholder="Search products..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
             className="w-full border rounded-full py-2 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
 
@@ -43,20 +48,20 @@ function Navbar() {
 
         </div>
 
-        {/* Right Side */}
+        {/* Right */}
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-5">
 
           <Link
             to="/wishlist"
-            className="text-xl hover:text-red-500 transition"
+            className="relative text-xl hover:text-red-500 transition"
           >
             <FaHeart />
           </Link>
 
           <Link
             to="/cart"
-            className="text-xl hover:text-blue-600 transition"
+            className="relative text-xl hover:text-blue-600 transition"
           >
             <FaShoppingCart />
           </Link>
@@ -67,59 +72,108 @@ function Navbar() {
               to="/login"
               className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition"
             >
+
               <FaUserCircle />
+
               Login
+
             </Link>
 
           ) : (
 
-            <>
+            <div className="flex items-center gap-4">
+
+              {/* Profile */}
+
+              <Link
+                to="/profile"
+                className="flex items-center gap-2 hover:text-blue-600 transition"
+              >
+
+                <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
+
+                  {user.name.charAt(0).toUpperCase()}
+
+                </div>
+
+                <div className="hidden lg:block">
+
+                  <h3 className="font-semibold">
+                    {user.name}
+                  </h3>
+
+                  <p className="text-xs text-gray-500 capitalize">
+                    {user.role}
+                  </p>
+
+                </div>
+
+              </Link>
+
+              {/* Orders */}
+
+              <Link
+                to="/orders"
+                className="hidden md:flex items-center gap-2 hover:text-blue-600 transition"
+              >
+
+                <FaClipboardList />
+
+                <span>
+                  Orders
+                </span>
+
+              </Link>
+
+              {/* Seller */}
 
               {user.role === "seller" && (
+
                 <Link
                   to="/seller/dashboard"
-                  className="font-semibold text-blue-600 hover:text-blue-800"
+                  className="hidden lg:block font-semibold text-blue-600 hover:text-blue-800"
                 >
                   Seller
                 </Link>
+
               )}
 
+              {/* Admin */}
+
               {user.role === "admin" && (
+
                 <Link
                   to="/admin/dashboard"
-                  className="font-semibold text-red-600 hover:text-red-800"
+                  className="hidden lg:block font-semibold text-red-600 hover:text-red-700"
                 >
                   Admin
                 </Link>
+
               )}
 
-              <div className="flex items-center gap-2">
-
-                <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-
-                <span className="hidden md:block font-semibold">
-                  {user.name}
-                </span>
-
-              </div>
+              {/* Logout */}
 
               <button
                 onClick={logout}
                 className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full transition"
               >
+
                 <FaSignOutAlt />
-                Logout
+
+                <span className="hidden md:block">
+                  Logout
+                </span>
+
               </button>
 
-            </>
+            </div>
 
           )}
 
         </div>
 
       </div>
+
     </nav>
   );
 }

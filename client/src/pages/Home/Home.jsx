@@ -8,24 +8,34 @@ import {
 
 import ProductCard from "../../components/ProductCard/ProductCard";
 import SkeletonCard from "../../components/Loading/SkeletonCard";
-import { getAllProducts } from "../../services/productService";
-
-import { useSearch } from "../../context/SearchContext";
 import EmptyState from "../../components/Common/EmptyState";
+import SortDropdown from "../../components/Home/SortDropdown";
+import Pagination from "../../components/Home/Pagination";
+
+import { getAllProducts } from "../../services/productService";
+import { useSearch } from "../../context/SearchContext";
+
 function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const PRODUCTS_PER_PAGE = 8;
+
   const {
     search,
     category,
     setCategory,
+    sortBy,
   } = useSearch();
-
-  
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, category, sortBy]);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -34,7 +44,6 @@ function Home() {
       const data = await getAllProducts();
 
       if (data.success) {
-        console.log(data.products);
         setProducts(data.products);
       }
     } catch (error) {
@@ -55,22 +64,92 @@ function Home() {
   ];
 
   const filteredProducts = useMemo(() => {
+    let filtered = [...products];
+
+    // Search
+
     const keyword = search.toLowerCase();
 
-    return products.filter((product) => {
-      const matchesSearch =
-        product.name?.toLowerCase().includes(keyword) ||
-        product.brand?.toLowerCase().includes(keyword) ||
-        product.category?.toLowerCase().includes(keyword);
-
-      const matchesCategory =
-        category === "All" ||
-        product.category?.toLowerCase() === category.toLowerCase();
-
-      return matchesSearch && matchesCategory;
+    filtered = filtered.filter((product) => {
+      return (
+        product.name
+          ?.toLowerCase()
+          .includes(keyword) ||
+        product.brand
+          ?.toLowerCase()
+          .includes(keyword) ||
+        product.category
+          ?.toLowerCase()
+          .includes(keyword)
+      );
     });
-  }, [products, search, category]);
 
+    // Category
+
+    if (category !== "All") {
+      filtered = filtered.filter(
+        (product) =>
+          product.category?.toLowerCase() ===
+          category.toLowerCase()
+      );
+    }
+
+    // Sorting
+
+    switch (sortBy) {
+      case "price-low":
+        filtered.sort(
+          (a, b) => a.price - b.price
+        );
+        break;
+
+      case "price-high":
+        filtered.sort(
+          (a, b) => b.price - a.price
+        );
+        break;
+
+      case "newest":
+        filtered.sort(
+          (a, b) =>
+            new Date(b.created_at) -
+            new Date(a.created_at)
+        );
+        break;
+
+      case "oldest":
+        filtered.sort(
+          (a, b) =>
+            new Date(a.created_at) -
+            new Date(b.created_at)
+        );
+        break;
+
+      default:
+        break;
+    }
+
+    return filtered;
+  }, [
+    products,
+    search,
+    category,
+    sortBy,
+  ]);
+
+  const totalPages = Math.ceil(
+    filteredProducts.length / PRODUCTS_PER_PAGE
+  );
+
+  const startIndex =
+    (currentPage - 1) * PRODUCTS_PER_PAGE;
+
+  const currentProducts =
+    filteredProducts.slice(
+      startIndex,
+      startIndex + PRODUCTS_PER_PAGE
+    );
+  
   return (
     <div className="bg-gray-100 min-h-screen">
 
@@ -78,28 +157,39 @@ function Home() {
 
       <section className="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 text-white">
 
-        <div className="max-w-7xl mx-auto px-6 py-24 grid lg:grid-cols-2 items-center gap-10">
+        <div className="max-w-7xl mx-auto px-6 py-24 grid lg:grid-cols-2 gap-10 items-center">
 
           <div>
 
             <span className="bg-white text-blue-700 px-4 py-2 rounded-full font-semibold">
+
               🔥 Biggest Sale of the Year
+
             </span>
 
             <h1 className="text-6xl font-extrabold mt-8 leading-tight">
+
               Shop Smarter
+
               <br />
+
               Live Better
+
             </h1>
 
             <p className="mt-8 text-xl text-blue-100">
-              Buy premium electronics, fashion,
-              accessories and much more with
-              exclusive discounts.
+
+              Buy premium electronics,
+              fashion, accessories and
+              much more with exclusive
+              discounts.
+
             </p>
 
             <button className="mt-10 bg-white text-blue-700 px-8 py-4 rounded-xl font-bold hover:scale-105 transition">
+
               Shop Now
+
             </button>
 
           </div>
@@ -120,27 +210,30 @@ function Home() {
 
       {/* CATEGORY */}
 
-      <section className="max-w-7xl mx-auto py-16 px-6">
+      <section className="max-w-7xl mx-auto px-6 py-16">
 
-        <h2 className="text-4xl font-bold mb-10 text-center">
+        <h2 className="text-4xl font-bold text-center mb-10">
+
           Shop by Category
+
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-6">
 
           {categories.map((item) => (
 
             <button
               key={item}
-              onClick={() => setCategory(item)}
-              className={`rounded-2xl shadow-md p-8 text-center font-semibold transition duration-300 cursor-pointer hover:-translate-y-2
+              onClick={() =>
+                setCategory(item)
+              }
+              className={`rounded-2xl shadow-md p-6 font-semibold transition duration-300 hover:-translate-y-2
 
                 ${
                   category === item
                     ? "bg-blue-600 text-white"
                     : "bg-white hover:bg-blue-600 hover:text-white"
-                }
-              `}
+                }`}
             >
               {item}
             </button>
@@ -153,7 +246,7 @@ function Home() {
 
       {/* FEATURES */}
 
-      <section className="max-w-7xl mx-auto px-6 py-12">
+      <section className="max-w-7xl mx-auto px-6 py-10">
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
 
@@ -162,11 +255,15 @@ function Home() {
             <FaShippingFast className="text-5xl mx-auto text-blue-600" />
 
             <h3 className="font-bold text-xl mt-5">
+
               Free Shipping
+
             </h3>
 
             <p className="mt-2 text-gray-500">
+
               On all orders above ₹999
+
             </p>
 
           </div>
@@ -176,11 +273,15 @@ function Home() {
             <FaShieldAlt className="text-5xl mx-auto text-green-600" />
 
             <h3 className="font-bold text-xl mt-5">
+
               Secure Payment
+
             </h3>
 
             <p className="mt-2 text-gray-500">
-              100% safe transactions
+
+              100% Safe Payment
+
             </p>
 
           </div>
@@ -190,11 +291,15 @@ function Home() {
             <FaUndoAlt className="text-5xl mx-auto text-red-500" />
 
             <h3 className="font-bold text-xl mt-5">
+
               Easy Returns
+
             </h3>
 
             <p className="mt-2 text-gray-500">
-              7 Days return policy
+
+              7 Days Return Policy
+
             </p>
 
           </div>
@@ -204,11 +309,15 @@ function Home() {
             <FaHeadset className="text-5xl mx-auto text-purple-600" />
 
             <h3 className="font-bold text-xl mt-5">
+
               24×7 Support
+
             </h3>
 
             <p className="mt-2 text-gray-500">
+
               Always here to help
+
             </p>
 
           </div>
@@ -221,15 +330,15 @@ function Home() {
 
       <section className="max-w-7xl mx-auto px-6 py-16">
 
-        <div className="flex justify-between items-center mb-10">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-5">
 
           <h2 className="text-4xl font-bold">
+
             Featured Products
+
           </h2>
 
-          <button className="text-blue-600 font-semibold hover:underline">
-            View All →
-          </button>
+          <SortDropdown />
 
         </div>
 
@@ -237,35 +346,48 @@ function Home() {
 
           {loading ? (
 
-            [...Array(8)].map((_, index) => (
-              <SkeletonCard key={index} />
-            ))
+            [...Array(8)].map(
+              (_, index) => (
+                <SkeletonCard
+                  key={index}
+                />
+              )
+            )
 
-          ) : filteredProducts.length > 0 ? (
+          ) : filteredProducts.length >
+            0 ? (
 
-                filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                  />
-                ))
+            currentProducts.map(
+              (product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                />
+              )
+            )
 
-              ) : (
+          ) : (
 
-                <div className="col-span-full">
+            <div className="col-span-full">
 
-                  <EmptyState
-                    title="No Products Found"
-                    description={`No products match "${search}". Try a different keyword.`}
-                    buttonText="Clear Search"
-                    buttonLink="/"
-                  />
+              <EmptyState
+                title="No Products Found"
+                description={`No products match "${search}"`}
+                buttonText="Clear Search"
+                buttonLink="/"
+              />
 
-                </div>
+            </div>
 
-              )}
+          )}
 
         </div>
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
 
       </section>
 

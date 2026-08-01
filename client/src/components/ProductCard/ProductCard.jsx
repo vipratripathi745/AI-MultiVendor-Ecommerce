@@ -3,17 +3,78 @@ import {
   FaShoppingCart,
   FaHeart,
   FaStar,
+  FaEye,
 } from "react-icons/fa";
+import { useState } from "react";
+import toast from "react-hot-toast";
+
+import { addToCart } from "../../services/cartService";
+import {
+  addToWishlist,
+  removeWishlistItem,
+} from "../../services/wishlistService";
 
 function ProductCard({ product }) {
+  const [wishlist, setWishlist] = useState(false);
+  const [addingCart, setAddingCart] = useState(false);
+  const [addingWishlist, setAddingWishlist] =
+    useState(false);
+
+  const handleWishlist = async () => {
+    try {
+      setAddingWishlist(true);
+
+      if (wishlist) {
+        const response =
+          await removeWishlistItem(product.id);
+
+        toast.success(response.message);
+      } else {
+        const response =
+          await addToWishlist(product.id);
+
+        toast.success(response.message);
+      }
+
+      setWishlist((prev) => !prev);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Something went wrong"
+      );
+    } finally {
+      setAddingWishlist(false);
+    }
+  };
+
+  const handleCart = async () => {
+    try {
+      setAddingCart(true);
+
+      const response = await addToCart(
+        product.id,
+        1
+      );
+
+      toast.success(response.message);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Unable to add to cart"
+      );
+    } finally {
+      setAddingCart(false);
+    }
+  };
+
   return (
-    <div className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+    <div className="group bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-2 transition duration-300">
 
-      {/* Image */}
+      {/* IMAGE */}
 
-      <Link to={`/products/${product.id}`}>
+      <div className="relative overflow-hidden">
 
-        <div className="relative overflow-hidden">
+        <Link to={`/products/${product.id}`}>
 
           <img
             src={product.image}
@@ -21,86 +82,91 @@ function ProductCard({ product }) {
             className="h-64 w-full object-cover group-hover:scale-110 transition duration-500"
           />
 
-          {/* Discount */}
+        </Link>
 
-          <span className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+        {/* Discount */}
 
-            20% OFF
+        <span className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow">
+          20% OFF
+        </span>
 
-          </span>
+        {/* Stock */}
 
-          {/* Wishlist */}
+        <span
+          className={`absolute bottom-4 left-4 px-3 py-1 rounded-full text-xs font-semibold ${
+            product.stock > 0
+              ? "bg-green-600 text-white"
+              : "bg-red-600 text-white"
+          }`}
+        >
+          {product.stock > 0
+            ? "In Stock"
+            : "Out of Stock"}
+        </span>
 
-          <button
-            className="absolute top-4 right-4 bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:bg-red-500 hover:text-white transition"
-          >
+        {/* Wishlist */}
 
-            <FaHeart />
+        <button
+          onClick={handleWishlist}
+          disabled={addingWishlist}
+          className={`absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition disabled:opacity-60 ${
+            wishlist
+              ? "bg-red-600 text-white"
+              : "bg-white hover:bg-red-600 hover:text-white"
+          }`}
+        >
+          <FaHeart />
+        </button>
 
-          </button>
+      </div>
 
-        </div>
-
-      </Link>
-
-      {/* Details */}
+      {/* DETAILS */}
 
       <div className="p-5">
 
-        <p className="text-sm uppercase text-gray-400">
-
+        <p className="uppercase text-xs tracking-wider text-gray-400">
           {product.category}
-
         </p>
 
         <Link to={`/products/${product.id}`}>
 
-          <h3 className="text-xl font-bold mt-2 group-hover:text-blue-600 transition">
-
+          <h2 className="text-xl font-bold mt-2 group-hover:text-blue-600 transition">
             {product.name}
-
-          </h3>
+          </h2>
 
         </Link>
 
-        <p className="text-gray-500 text-sm mt-2 line-clamp-2">
-
+        <p className="text-gray-500 text-sm mt-3 line-clamp-2">
           {product.description}
-
         </p>
 
         {/* Rating */}
 
-        <div className="flex items-center gap-1 mt-4 text-yellow-400">
+        <div className="flex items-center mt-4">
 
-          <FaStar />
-          <FaStar />
-          <FaStar />
-          <FaStar />
-          <FaStar />
+          {[1, 2, 3, 4, 5].map((star) => (
+            <FaStar
+              key={star}
+              className="text-yellow-400"
+            />
+          ))}
 
-          <span className="text-gray-600 ml-2">
-
+          <span className="ml-2 text-gray-500 text-sm">
             (5.0)
-
           </span>
 
         </div>
 
         {/* Price */}
 
-        <div className="flex items-center gap-3 mt-5">
+        <div className="flex items-end gap-3 mt-5">
 
           <span className="text-3xl font-bold text-blue-600">
-
             ₹{product.price}
-
           </span>
 
-          <span className="text-gray-400 line-through">
-
+          <span className="line-through text-gray-400">
             ₹{Math.floor(product.price * 1.2)}
-
           </span>
 
         </div>
@@ -110,22 +176,30 @@ function ProductCard({ product }) {
         <div className="flex gap-3 mt-6">
 
           <button
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition"
+            onClick={handleCart}
+            disabled={
+              addingCart ||
+              product.stock === 0
+            }
+            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition"
           >
 
             <FaShoppingCart />
 
-            Add To Cart
+            {addingCart
+              ? "Adding..."
+              : "Add To Cart"}
 
           </button>
 
-          <button
-            className="w-14 border rounded-xl hover:bg-red-500 hover:text-white transition"
+          <Link
+            to={`/products/${product.id}`}
+            className="w-14 border rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition"
           >
 
-            <FaHeart />
+            <FaEye />
 
-          </button>
+          </Link>
 
         </div>
 

@@ -5,6 +5,7 @@ const SearchContext = createContext();
 export function SearchProvider({ children }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("default");
 
   return (
     <SearchContext.Provider
@@ -13,6 +14,8 @@ export function SearchProvider({ children }) {
         setSearch,
         category,
         setCategory,
+        sortBy,
+        setSortBy,
       }}
     >
       {children}

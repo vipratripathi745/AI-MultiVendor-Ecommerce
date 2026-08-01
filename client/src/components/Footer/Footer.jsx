@@ -1,143 +1,189 @@
 import {
-  FaFacebook,
+  FaFacebookF,
+  FaTwitter,
   FaInstagram,
-  FaLinkedin,
+  FaLinkedinIn,
   FaGithub,
-  FaPhoneAlt,
   FaEnvelope,
+  FaPhone,
   FaMapMarkerAlt,
 } from "react-icons/fa";
-
 import { Link } from "react-router-dom";
 
 function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-300 mt-20">
+    <footer className="bg-gray-900 text-white mt-20">
 
-      <div className="max-w-7xl mx-auto px-6 py-16">
+      <div className="max-w-7xl mx-auto px-6 py-14 grid md:grid-cols-2 lg:grid-cols-4 gap-10">
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+        {/* Brand */}
 
-          {/* Logo */}
+        <div>
 
-          <div>
+          <h1 className="text-3xl font-extrabold text-blue-400">
 
-            <h2 className="text-3xl font-bold text-white">
+            AIShop
 
-              AI<span className="text-blue-500">Shop</span>
+          </h1>
 
-            </h2>
+          <p className="text-gray-400 mt-5 leading-7">
 
-            <p className="mt-5 leading-7">
+            AIShop is a modern multi-vendor eCommerce
+            platform where customers can shop,
+            sellers can manage products, and
+            administrators can monitor the entire
+            marketplace.
 
-              AI Shop is your trusted destination for premium
-              electronics, fashion, accessories and much more.
-              Shop with confidence and enjoy secure payments
-              with fast delivery.
+          </p>
 
-            </p>
+          <div className="flex gap-4 mt-6">
+
+            <a
+              href="#"
+              className="w-10 h-10 rounded-full bg-gray-800 hover:bg-blue-600 flex items-center justify-center transition"
+            >
+              <FaFacebookF />
+            </a>
+
+            <a
+              href="#"
+              className="w-10 h-10 rounded-full bg-gray-800 hover:bg-sky-500 flex items-center justify-center transition"
+            >
+              <FaTwitter />
+            </a>
+
+            <a
+              href="#"
+              className="w-10 h-10 rounded-full bg-gray-800 hover:bg-pink-600 flex items-center justify-center transition"
+            >
+              <FaInstagram />
+            </a>
+
+            <a
+              href="#"
+              className="w-10 h-10 rounded-full bg-gray-800 hover:bg-blue-700 flex items-center justify-center transition"
+            >
+              <FaLinkedinIn />
+            </a>
+
+            <a
+              href="https://github.com/vipratripathi745"
+              className="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition"
+            >
+              <FaGithub />
+            </a>
 
           </div>
 
-          {/* Quick Links */}
+        </div>
 
-          <div>
+        {/* Quick Links */}
 
-            <h3 className="text-white text-xl font-bold mb-5">
+        <div>
 
-              Quick Links
+          <h2 className="text-xl font-bold mb-5">
 
-            </h3>
+            Quick Links
 
-            <div className="flex flex-col gap-3">
+          </h2>
 
-              <Link to="/" className="hover:text-blue-400 transition">
-                Home
-              </Link>
+          <div className="space-y-3">
 
-              <Link to="/wishlist" className="hover:text-blue-400 transition">
-                Wishlist
-              </Link>
+            <Link
+              to="/"
+              className="block text-gray-400 hover:text-white"
+            >
+              Home
+            </Link>
 
-              <Link to="/cart" className="hover:text-blue-400 transition">
-                Cart
-              </Link>
+            <Link
+              to="/cart"
+              className="block text-gray-400 hover:text-white"
+            >
+              Cart
+            </Link>
 
-              <Link to="/orders" className="hover:text-blue-400 transition">
-                Orders
-              </Link>
+            <Link
+              to="/wishlist"
+              className="block text-gray-400 hover:text-white"
+            >
+              Wishlist
+            </Link>
+
+            <Link
+              to="/orders"
+              className="block text-gray-400 hover:text-white"
+            >
+              My Orders
+            </Link>
+
+          </div>
+
+        </div>
+
+        {/* Customer */}
+
+        <div>
+
+          <h2 className="text-xl font-bold mb-5">
+
+            Customer Service
+
+          </h2>
+
+          <div className="space-y-3 text-gray-400">
+
+            <p>Help Center</p>
+
+            <p>Shipping Policy</p>
+
+            <p>Return Policy</p>
+
+            <p>Privacy Policy</p>
+
+            <p>Terms & Conditions</p>
+
+          </div>
+
+        </div>
+
+        {/* Contact */}
+
+        <div>
+
+          <h2 className="text-xl font-bold mb-5">
+
+            Contact
+
+          </h2>
+
+          <div className="space-y-4 text-gray-400">
+
+            <div className="flex gap-3">
+
+              <FaMapMarkerAlt className="mt-1" />
+
+              <span>
+                Jaipur, Rajasthan, India
+              </span>
 
             </div>
 
-          </div>
+            <div className="flex gap-3">
 
-          {/* Contact */}
+              <FaPhone className="mt-1" />
 
-          <div>
+              <span>+91 9876543210</span>
 
-            <h3 className="text-white text-xl font-bold mb-5">
+            </div>
 
-              Contact
+            <div className="flex gap-3">
 
-            </h3>
+              <FaEnvelope className="mt-1" />
 
-            <div className="space-y-4">
-
-              <div className="flex items-center gap-3">
-
-                <FaPhoneAlt className="text-blue-400" />
-
-                +91 6264581136
-
-              </div>
-
-              <div className="flex items-center gap-3">
-
-                <FaEnvelope className="text-blue-400" />
-
+              <span>
                 support@aishop.com
-
-              </div>
-
-              <div className="flex items-center gap-3">
-
-                <FaMapMarkerAlt className="text-blue-400" />
-
-                Jaipur, Rajasthan
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* Social */}
-
-          <div>
-
-            <h3 className="text-white text-xl font-bold mb-5">
-
-              Follow Us
-
-            </h3>
-
-            <div className="flex gap-4 text-2xl">
-
-              <a href="#" className="hover:text-blue-500 transition">
-                <FaFacebook />
-              </a>
-
-              <a href="https://www.instagram.com/mr.__vipra" className="hover:text-pink-500 transition">
-                <FaInstagram />
-              </a>
-
-              <a href="#" className="hover:text-blue-400 transition">
-                <FaLinkedin />
-              </a>
-
-              <a href="https://github.com/vipratripathi745" className="hover:text-white transition">
-                <FaGithub />
-              </a>
+              </span>
 
             </div>
 
@@ -145,23 +191,14 @@ function Footer() {
 
         </div>
 
-        <hr className="my-10 border-gray-700" />
+      </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+      <div className="border-t border-gray-700 py-6 text-center text-gray-400">
 
-          <p>
-
-            © 2026 AI Shop. All Rights Reserved.
-
-          </p>
-
-          <p className="text-sm text-gray-400">
-
-            Built with ❤️ using React, Node.js & PostgreSQL
-
-          </p>
-
-        </div>
+        © {new Date().getFullYear()} AIShop •
+        Multi Vendor E-Commerce Platform.
+        Built with ❤️ using React, Node.js &
+        MySQL.
 
       </div>
 

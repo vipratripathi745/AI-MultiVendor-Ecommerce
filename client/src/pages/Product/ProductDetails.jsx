@@ -12,6 +12,7 @@ import {
 import { getProduct } from "../../services/productService";
 import { addToCart } from "../../services/cartService";
 import { addToWishlist } from "../../services/wishlistService";
+import Reviews from "../../components/Product/Reviews";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -102,7 +103,9 @@ function ProductDetails() {
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-[550px] object-cover rounded-3xl shadow-lg hover:scale-105 transition duration-500"
+              className={`w-full h-[550px] object-cover rounded-3xl shadow-lg transition duration-500 ${
+                product.stock > 0 ? "hover:scale-105" : ""
+              }`}
             />
 
           </div>
@@ -264,8 +267,8 @@ function ProductDetails() {
 
               <button
                 onClick={handleAddToCart}
-                disabled={addingCart}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition"
+                disabled={addingCart || product.stock === 0}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition"
               >
 
                 <FaShoppingCart />
@@ -278,8 +281,8 @@ function ProductDetails() {
 
               <button
                 onClick={handleWishlist}
-                disabled={addingWishlist}
-                className="bg-red-500 hover:bg-red-600 text-white px-8 rounded-xl flex items-center justify-center text-2xl transition"
+                disabled={addingWishlist || product.stock === 0}
+                className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-8 rounded-xl flex items-center justify-center text-2xl transition"
               >
 
                 <FaHeart />
@@ -291,6 +294,14 @@ function ProductDetails() {
           </div>
 
         </div>
+
+      </div>
+
+      {/* Reviews */}
+
+      <div className="max-w-7xl mx-auto mt-16">
+
+        <Reviews productId={product.id} />
 
       </div>
 

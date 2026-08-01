@@ -20,6 +20,7 @@ import AdminDashboard from "../pages/Admin/Dashboard";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Analytics from "../pages/Admin/Analytics";
 import NotFound from "../pages/NotFound/NotFound";
+import Profile from "../pages/Profile/Profile";
 
 function AppRoutes() {
   return (
@@ -82,6 +83,15 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <OrderDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />
