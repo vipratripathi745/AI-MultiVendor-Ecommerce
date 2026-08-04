@@ -1,80 +1,128 @@
 # 🛒 AI Multi-Vendor E-Commerce Platform
 
-A full-stack AI-powered Multi-Vendor E-Commerce Platform where customers can shop online, sellers can manage products, and admins can monitor the entire platform through an analytics dashboard.
+<p align="center">
+
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
+![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?style=for-the-badge&logo=postgresql)
+![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-38BDF8?style=for-the-badge&logo=tailwindcss)
+![JWT](https://img.shields.io/badge/JWT-Authentication-black?style=for-the-badge)
+![Cloudinary](https://img.shields.io/badge/Cloudinary-Media-blue?style=for-the-badge)
+![Render](https://img.shields.io/badge/Backend-Render-46E3B7?style=for-the-badge)
+![Vercel](https://img.shields.io/badge/Frontend-Vercel-black?style=for-the-badge)
+
+</p>
+
+<p align="center">
+
+A production-ready **AI-powered Multi-Vendor E-Commerce Platform** where customers can shop online, sellers can manage products, and administrators can monitor the platform through a powerful analytics dashboard.
+
+</p>
 
 ---
 
-## 🚀 Features
+# 🌐 Live Demo
 
-### 👤 Customer
-- User Registration & Login (JWT Authentication)
+### 🖥️ Frontend
+
+**https://ai-multi-vendor-frontend-7dk10xu91-vipra-team.vercel.app/**
+
+### 🚀 Backend API
+
+**https://ai-multivendor-backend.onrender.com/**
+
+---
+
+# ✨ Features
+
+## 👤 Customer
+
+- JWT Authentication
 - Browse Products
-- Search, Filter & Sort Products
-- Product Details Page
-- Add to Cart
+- Search Products
+- Filter & Sort Products
+- Product Details
+- Shopping Cart
 - Wishlist
 - Checkout
-- Order Management
+- Order History
 - Reviews & Ratings
 - Profile Management
 
-### 🛍 Seller
+---
+
+## 🛍️ Seller
+
 - Seller Dashboard
-- Add Product
-- Edit Product
-- Delete Product
-- View Own Products
+- Add Products
+- Edit Products
+- Delete Products
+- Manage Inventory
 - Seller Analytics
 
-### 👨‍💼 Admin
+---
+
+## 👨‍💼 Admin
+
 - Admin Dashboard
 - User Management
 - Product Management
 - Order Management
-- Analytics Dashboard
 - Revenue Analytics
+- Monthly Reports
 - Top Selling Products
-- Monthly Revenue Reports
+- Recent Orders
 
 ---
 
-# 🛠 Tech Stack
+# 🛠️ Tech Stack
 
 ## Frontend
-- React.js
+
+- React 19
+- Vite
 - Tailwind CSS
 - React Router DOM
 - Axios
 - React Hot Toast
 - Recharts
 
-## Backend
+### Backend
+
 - Node.js
 - Express.js
-- PostgreSQL
+- PostgreSQL (Neon)
 - JWT Authentication
 - Multer
 - Cloudinary
+
+### Deployment
+
+- Frontend → Vercel
+- Backend → Render
+- Database → Neon PostgreSQL
+- Image Storage → Cloudinary
 
 ---
 
 # 📂 Project Structure
 
-```
-AI-MultiVendor-Ecommerce/
-
-├── client/
-│   ├── src/
-│   ├── public/
+```text
+AI-MultiVendor-Ecommerce
+│
+├── client
+│   ├── src
+│   ├── public
+│   ├── docs
 │   └── package.json
 │
-├── server/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── config/
-│   ├── utils/
+├── server
+│   ├── config
+│   ├── controllers
+│   ├── middleware
+│   ├── models
+│   ├── routes
+│   ├── utils
 │   └── package.json
 │
 └── README.md
@@ -87,9 +135,12 @@ AI-MultiVendor-Ecommerce/
 - JWT Authentication
 - Protected Routes
 - Role Based Authorization
-  - Customer
-  - Seller
-  - Admin
+
+Roles
+
+- Customer
+- Seller
+- Admin
 
 ---
 
@@ -97,6 +148,7 @@ AI-MultiVendor-Ecommerce/
 
 - Authentication
 - Product Management
+- Categories
 - Cart
 - Wishlist
 - Reviews
@@ -105,69 +157,113 @@ AI-MultiVendor-Ecommerce/
 - Profile
 - Seller Dashboard
 - Admin Dashboard
-- Analytics
+- Analytics Dashboard
 
 ---
 
-# 📊 Database
+# 🗄️ Database
 
-PostgreSQL Tables
+### PostgreSQL Tables
 
 - users
+- categories
 - products
-- orders
-- order_items
 - cart
 - wishlist
+- orders
+- order_items
 - reviews
-- categories
 
 ---
 
-# ☁ Cloud Storage
+# ☁️ Cloud Storage
 
-Product images are uploaded using **Cloudinary**.
+All product images are securely stored using **Cloudinary**.
 
 ---
 
-# 📈 Analytics Dashboard
+# 📊 Analytics Dashboard
 
 - Total Users
 - Total Products
 - Total Orders
-- Revenue
-- Monthly Revenue Chart
-- Order Status Pie Chart
+- Revenue Analytics
+- Monthly Revenue
+- Order Status Chart
 - Top Selling Products
 - Recent Orders
 
 ---
 
-# ⚙ Installation
+# 📸 Project Screenshots
+
+## 🏠 Home Page
+
+![Home](client/docs/images/home.png)
+
+---
+
+## 🏪 Product Listing
+
+![Products](client/docs/images/products.png)
+
+---
+
+## 📦 Product Details
+
+![Product Details](client/docs/images/product-details.png)
+
+---
+
+## 🛒 Shopping Cart
+
+![Cart](client/docs/images/cart.png)
+
+---
+
+## ❤️ Wishlist
+
+![Wishlist](client/docs/images/wishlist.png)
+
+---
+
+## 📦 Orders
+
+![Orders](client/docs/images/orders.png)
+
+---
+
+## 👤 Profile
+
+![Profile](client/docs/images/profile.png)
+
+---
+
+# 🚀 Installation
 
 ## Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/AI-MultiVendor-Ecommerce.git
+git clone https://github.com/vipratripathi745/AI-MultiVendor-Ecommerce.git
 ```
 
----
-
-## Client
+## Install Frontend
 
 ```bash
 cd client
+
 npm install
+
 npm run dev
 ```
 
----
-
-## Server
+## Install Backend
 
 ```bash
 cd server
+
 npm install
+
 npm run dev
 ```
 
@@ -178,7 +274,7 @@ npm run dev
 ## Server (.env)
 
 ```env
-PORT=4000
+PORT=
 
 DATABASE_URL=
 
@@ -191,53 +287,78 @@ CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
 ```
 
+## Client (.env)
+
+```env
+VITE_API_URL=https://ai-multivendor-backend.onrender.com/api
+```
+
 ---
 
-# 📷 Screenshots
+# 📡 REST API
 
-## Home
+## Authentication
 
-(Add Screenshot)
+```http
+POST /api/users/register
+POST /api/users/login
+```
 
-## Product Details
+## Products
 
-(Add Screenshot)
+```http
+GET    /api/products
+GET    /api/products/:id
+POST   /api/products
+PUT    /api/products/:id
+DELETE /api/products/:id
+```
 
 ## Cart
 
-(Add Screenshot)
+```http
+GET    /api/cart
+POST   /api/cart
+DELETE /api/cart/:id
+```
+
+## Orders
+
+```http
+GET    /api/orders
+POST   /api/orders
+```
 
 ## Wishlist
 
-(Add Screenshot)
-
-## Checkout
-
-(Add Screenshot)
-
-## Seller Dashboard
-
-(Add Screenshot)
-
-## Admin Dashboard
-
-(Add Screenshot)
-
-## Analytics Dashboard
-
-(Add Screenshot)
+```http
+GET    /api/wishlist
+POST   /api/wishlist
+DELETE /api/wishlist/:id
+```
 
 ---
 
-# 🌟 Future Improvements
+# 🚀 Deployment
 
-- Razorpay Payment Gateway
+| Service | Platform |
+|----------|----------|
+| Frontend | Vercel |
+| Backend | Render |
+| Database | Neon PostgreSQL |
+| Image Storage | Cloudinary |
+
+---
+
+# 🛣️ Future Improvements
+
+- Online Payment Gateway (Stripe/Razorpay)
 - Email Notifications
 - Invoice Generation
-- Coupon Management
-- Product Recommendations
-- AI Chatbot Support
+- AI Product Recommendations
 - Real-time Notifications
+- Chat Support
+- Progressive Web App (PWA)
 
 ---
 
@@ -245,14 +366,21 @@ CLOUDINARY_API_SECRET=
 
 **Vipra Tripathi**
 
-GitHub:
-https://github.com/vipratripathi745
-
-LinkedIn:
-(Add LinkedIn URL)
+- GitHub: https://github.com/vipratripathi745
+- LinkedIn: *(Add your LinkedIn profile URL here)*
 
 ---
 
-# ⭐ If you like this project
+# ⭐ Support
 
-Please give it a ⭐ on GitHub.
+If you found this project useful, please consider giving it a ⭐ on GitHub.
+
+It helps others discover the project and motivates future improvements.
+
+---
+
+<p align="center">
+
+Made with ❤️ by **Vipra Tripathi**
+
+</p>
