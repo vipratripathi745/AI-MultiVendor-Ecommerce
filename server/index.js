@@ -19,13 +19,24 @@ import analyticsRoutes from "./routes/analyticsRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
 
 const app = express();
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ai-multi-vendor-frontend-7dk10xu91-vipra-team.vercel.app",
+];
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
 app.use(express.json());
 
 
