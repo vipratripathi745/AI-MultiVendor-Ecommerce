@@ -97,10 +97,7 @@ export const checkoutService = async (
 
     return order;
   } catch (error) {
-      console.log("========== CHECKOUT ERROR ==========");
       console.log(error);
-      console.log(error.stack);
-
       await client.query("ROLLBACK");
       throw error;
     } finally {
