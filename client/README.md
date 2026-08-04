@@ -14,6 +14,48 @@ https://ai-multi-vendor-frontend-7dk10xu91-vipra-team.vercel.app/
 
 ---
 
+# 📸 Project Screenshots
+
+## 🏠 Home Page
+
+![Home](docs/images/home1.png)
+
+---
+
+## 🛍 Products
+
+![Products](docs/images/home2.png)
+
+---
+
+## 📦 Product Details
+
+![Product](docs/images/item.png)
+
+---
+
+## 🛒 Shopping Cart
+
+![Cart](docs/images/cart.png)
+
+---
+
+## ❤️ Wishlist
+
+![Wishlist](docs/images/like.png)
+
+---
+
+## 📦 Orders
+
+![Orders](docs/images/order.png)
+
+---
+
+## 👤 Profile
+
+![Profile](docs/images/profile.png)
+-----
 # ✨ Features
 
 - 🔐 JWT Authentication
